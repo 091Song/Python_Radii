@@ -22,24 +22,19 @@ import pandas as pd
 # image file name
 IFname = 'SampleImage.jpg'
 
-# Read
-#imgCL = cv2.imread('SampleImage.jpg', cv2.IMREAD_COLOR) # Color image
+# Read an image
 imgBW = cv2.imread('SampleImage.jpg', 0) # Black and White image
-# 0 for black / 255 for white
 
 ### Show images
 #cv2.imshow('Color', imgCL)
-#cv2.imshow('BlackWhite', imgBW)
-#cv2.waitKey(0)
-#cv2.destroyAllWindows()
-## note: a keyboard input (such as click [enter or 0]) at an image window 
-##      is necessary to proceed running other commands
+cv2.imshow('BlackWhite', imgBW)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 ### save an image
 #cv2.imwrite('SampleGray.jpg', imgBW)
 
-### 
-# (h, w): height and widht of an image
+### (h, w): height and widht of an image
 h, w = imgBW.shape 
 
 # set an array for a horizontal axis 
@@ -50,12 +45,16 @@ Y = np.arange(h)
 Intf = np.zeros((h,w), dtype = imgBW.dtype )
 Intb = np.zeros(h)
 
+# check the darkest point at a height i
 for i in range(0, h):
-    # an index for the darkest point at a hight i
+    # an index for the darkest point at a height i
     lmin = pd.Series(imgBW[i,:]).idxmin()
     # currently set white for a boundary value
-    Intb[i] = h - lmin
+    Intb[i] = w - lmin
     Intf[i,lmin] = 255 
+
+# ignore values < 0
+    
 
 ########
 # update later
@@ -63,16 +62,11 @@ for i in range(0, h):
     # ignore the noisy points
 ########
         
-
-
-# get the index of the minimum
-# pd.Series(imgBW[int(h/2),:]).idxmin()
     
 ### This is for check image 
 # to save the original image, copy it
-imgProc = np.array(imgBW)
-
-imgProc[h/2-10:h/2+10, :] = 255
+# imgProc = np.array(imgBW)
+# imgProc[h/2-10:h/2+10, :] = np.uint8(255)
 
 ### sort
 #imgBW2 = (imgBW < 120 )
@@ -85,13 +79,13 @@ imgProc[h/2-10:h/2+10, :] = 255
 #plt.xticks([])
 #plt.yticks([])
 
-plt.figure()
-plt.subplot(2,2,1); plt.imshow(imgProc, cmap='gray')
-plt.subplot(2,2,2); plt.imshow(Intf, cmap='gray')
-plt.subplot(2,2,3); plt.plot(X,imgBW[int(h/2),:])
-plt.subplot(2,2,4); plt.plot(Y,Intb)
+#plt.figure()
+#plt.subplot(2,2,1); plt.imshow(imgProc, cmap='gray')
+#plt.subplot(2,2,2); plt.imshow(Intf, cmap='gray')
+#plt.subplot(2,2,3); plt.plot(X,imgBW[int(h/2),:])
+#plt.subplot(2,2,4); plt.plot(Y,Intb)
 
-plt.show()
+#plt.show()
 
 plt.plot(Y,Intb)
 
