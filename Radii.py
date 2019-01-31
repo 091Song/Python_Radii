@@ -82,7 +82,7 @@ for i in range(1, h):
     if (Intbub[i] < ub):
         Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
     else:
-        Intbub[i] = pd.Series(imgBW[i,0:ub]).idxmin()
+        Intbub[i] = ub
 
     
     
