@@ -59,11 +59,11 @@ for i in range(1, h):
     Intb[i] = pd.Series(imgBW[i,0:w-sr]).idxmin()
     
     
-    
+    '''
     if (llim < sr and ulim > w - sr) :
         Intb[i] = pd.Series(imgBW[i,llim:ulim]).idxmin()
     else :
-        Intb[i] = w
+        Intb[i] = w '''
     
     
 # ignore values < 0 
@@ -74,7 +74,7 @@ for i in range(0, h):
     # set white for a boundary 
     Intf[i,Intb[i]] = 255
     # interface 
-    Intb[i] = w - Intb[i]
+    # Intb[i] = w - Intb[i]
 
 
 
