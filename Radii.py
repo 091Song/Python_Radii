@@ -56,31 +56,32 @@ Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 Intbub[0] = Intb[0] 
 
 # search ranges 
-sr = 300 # search limit
+sr = 100 # search limit
 ub = w-sr # upper boundary
+lw = sr
 
 # check the darkest point at a height i 
 # use differences
 for i in range(1, h):
-    Int0[i] = pd.Series(imgBW[i,:]).idxmin() # interface without processing
+    # initial interpolation
+    Int0[i] = pd.Series(imgBW[i,:]).idxmin()
+    # differences
+    diff = np.abs(Int0[i] - Int0[i-1])
+    
     
     # interface positions 
-    Intb[i] = pd.Series(imgBW[i,:]).idxmin()
-    # differences
-    diff = np.abs(Intb[i] - Intb[i-1])
-    # upper limit
-    ulim = int(Intb[i-1] + sr)
-    # sort step 1: using difference to 
-    if (diff < 0.5 * w):
-        
-        #Intb[i] = pd.Series(imgBW[i,:]).idxmin()
-        if (Intb[i] < ub):
-            Intb[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
-        else:
-            Intb[i] = ub
-    else:
-        Intb[i] = Intb[i-1]
+    # Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
     
+    
+    # sort step 1: using difference to 
+    if (diff < 0.5 * w ):
+        # ignore data below ub
+        Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
+        
+    else:
+        Intb[i] = ub #Intb[i-1]
+    
+    '''
     # upper limit
     Intbub[i] = pd.Series(imgBW[i,:]).idxmin()
     ulim = int(Intbub[i-1] + sr)
@@ -91,13 +92,13 @@ for i in range(1, h):
         
         Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
         
-        '''if (llim < sr):
+        if (llim < sr):
             Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin() 
         else:
-            Intbub[i] = pd.Series(imgBW[i,llim:ulim]).idxmin() '''
+            Intbub[i] = pd.Series(imgBW[i,llim:ulim]).idxmin() 
         
     else:
-        Intbub[i] = ub
+        Intbub[i] = ub '''
 
     
     
@@ -159,8 +160,8 @@ for i in range(0, h):
 #plt.show()
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbub, 'r')
     
-#plt.plot(Y, Intb, 'b', Y,Intbub, 'r--')
-plt.plot(Y, Intb, 'b')
+plt.plot(Y, Int0, 'k', Y,Intb, 'r--')
+#plt.plot(Y, Intb, 'b')
 
 #plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
