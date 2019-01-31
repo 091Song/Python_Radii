@@ -44,11 +44,13 @@ Y = np.arange(h)
 
 # for new array: same data type as in the image
 Intf = np.zeros((h,w), dtype = imgBW.dtype )
+
+Int0 = np.zeros(h)
 Intb = np.zeros(h)
-## temporal - comparison
-Intbub = np.zeros(h)
+Intbub = np.zeros(h) ## temporal - comparison
 
 # check initial two values
+Int0[0] = pd.Series(imgBW[0,:]).idxmin()
 Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 # temporal
 Intbub[0] = Intb[0] 
@@ -60,6 +62,8 @@ ub = w-sr # upper boundary
 # check the darkest point at a height i 
 # use differences
 for i in range(1, h):
+    Int0[i] = pd.Series(imgBW[i,:]).idxmin() # interface without processing
+    
     # interface positions 
     Intb[i] = pd.Series(imgBW[i,:]).idxmin()
     # differences
@@ -73,12 +77,12 @@ for i in range(1, h):
     
     # upper limit
     Intbub[i] = pd.Series(imgBW[i,:]).idxmin()
-    ulim = Intbub[i-1] + sr if Intbub[i-1] < ub else ub
+    ulim = Intbub[i-1] + sr 
     
-    if (diff < 0.5 * w):
+    if (Intbub[i] < ub):
         Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
     else:
-        Intbub[i] = Intbub[i-1]
+        Intbub[i] = pd.Series(imgBW[i,0:ub]).idxmin()
 
     
     
@@ -138,7 +142,9 @@ for i in range(0, h):
 #plt.subplot(2,2,4); plt.plot(Y,Intb)
 
 #plt.show()
-plt.plot(Y,Intb,Y,Intbub)
+#plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbub, 'r')
+    
+plt.plot(Y, Int0, 'k', Y,Intbub, 'r')
 
 #plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
