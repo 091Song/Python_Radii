@@ -66,7 +66,7 @@ for i in range(1, h):
     
     # sort step 1: using difference to 
     if (diff < 0.5 * w):
-        Intb[i] = pd.Series(imgBW[i,0:ub]).idxmin()
+        Intb[i] = pd.Series(imgBW[i,llim:ub]).idxmin()
     else:
         Intb[i] = Intb[i-1]
             
