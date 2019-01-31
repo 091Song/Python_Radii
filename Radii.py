@@ -46,41 +46,38 @@ Y = np.arange(h)
 Intf = np.zeros((h,w), dtype = imgBW.dtype )
 Intb = np.zeros(h)
 
-# check initial value 
+# check initial two values
 Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 
-# search ranges 
-sr = 100 # search limit
-ub = w-sr # upper boundary
 
-# check the darkest point at a height i
+# search ranges 
+#sr = 100 # search limit
+#ub = w-sr # upper boundary
+
+# check the darkest point at a height i 
+# use differences
 for i in range(1, h):
-    # due to the image processing
-    # llim is close to the dendrite tip
-    # ulim is close to the groove (far away from a tip)
-    llim = Intb[i-1] - sr
-    ulim = Intb[i-1] + sr
-    Intb[i] = pd.Series(imgBW[i,0:ub]).idxmin()
-    
+    # interface positions 
+    Intb[i] = pd.Series(imgBW[i,:]).idxmin()
+    # differences
     diff = np.abs(Intb[i] - Intb[i-1])
     
     # sort step 1: using difference to 
     if (diff < 0.5 * w):
-        Intb[i] = pd.Series(imgBW[i,llim:ub]).idxmin()
+        Intb[i] = pd.Series(imgBW[i,:]).idxmin()
     else:
         Intb[i] = Intb[i-1]
+    
+    # due to the image processing
+    
+    
+    # llim is close to the dendrite tip
+    # ulim is close to the groove (far away from a tip)
+    #llim = 100
+    #Intb[i-1] - sr if Intb[i-1] > sr else 0 
+    #ulim = Intb[i-1] + sr
+    
             
-            
-        
-    
-    
-    #if (llim < 100 ) :
-    #    Intb[i] = pd.Series(imgBW[i,llim:ulim]).idxmin()
-    
-    '''
-    else :
-        Intb[i] = w '''
-    
     
 # ignore values < 0 
 # sort difference < 100 -> turn them 0
