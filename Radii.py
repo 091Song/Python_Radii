@@ -47,25 +47,33 @@ Intf = np.zeros((h,w), dtype = imgBW.dtype )
 Intb = np.zeros(h)
 
 # check initial value 
-#Intb[0] = pd.Series(imgBW[0,:]).idxmin()
+Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 
-#sr=100 # search range 
+# search ranges 
+sr=100 # search limit
+ulim = w-sr # upper limit
 
 # check the darkest point at a height i
-for i in range(0, h):
-    # an index for the darkest point at a height i
-    #lmin = pd.Series(imgBW[i, Intb[i-1]-sr: Intb[i-1]+sr ]).idxmin()
-    Intb[i] = pd.Series(imgBW[i, :]).idxmin()
-    # currently set white for a boundary value
-    #Intb[i] = w - lmin
-    #Intf[i,lmin] = 255 
-
+for i in range(1, h):
+    llim = Intb[i-1]-sr
+    Intb[i] = pd.Series(imgBW[i,0:w-sr]).idxmin()
+    
+    
+    
+    if (llim < sr and ulim > w - sr) :
+        Intb[i] = pd.Series(imgBW[i,llim:ulim]).idxmin()
+    else :
+        Intb[i] = w
+    
+    
 # ignore values < 0 
 # sort difference < 100 -> turn them 0
     
-# rearrange
+# rearrange interface positions
 for i in range(0, h):
-    Intf[i,Intb[i]] = 255 
+    # set white for a boundary 
+    Intf[i,Intb[i]] = 255
+    # interface 
     Intb[i] = w - Intb[i]
 
 
