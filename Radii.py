@@ -56,7 +56,7 @@ Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 Intbub[0] = Intb[0] 
 
 # search ranges 
-sr = 100 # search limit
+sr = 300 # search limit
 ub = w-sr # upper boundary
 
 # check the darkest point at a height i 
@@ -68,19 +68,34 @@ for i in range(1, h):
     Intb[i] = pd.Series(imgBW[i,:]).idxmin()
     # differences
     diff = np.abs(Intb[i] - Intb[i-1])
-    
+    # upper limit
+    ulim = int(Intb[i-1] + sr)
     # sort step 1: using difference to 
     if (diff < 0.5 * w):
-        Intb[i] = pd.Series(imgBW[i,:]).idxmin()
+        
+        #Intb[i] = pd.Series(imgBW[i,:]).idxmin()
+        if (Intb[i] < ub):
+            Intb[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
+        else:
+            Intb[i] = ub
     else:
         Intb[i] = Intb[i-1]
     
     # upper limit
     Intbub[i] = pd.Series(imgBW[i,:]).idxmin()
-    ulim = Intbub[i-1] + sr 
+    ulim = int(Intbub[i-1] + sr)
+    # lower limit
+    llim = int(Intbub[i-1] - sr)
     
-    if (Intbub[i] < ub):
+    if (Intbub[i] < ub ):
+        
         Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
+        
+        '''if (llim < sr):
+            Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin() 
+        else:
+            Intbub[i] = pd.Series(imgBW[i,llim:ulim]).idxmin() '''
+        
     else:
         Intbub[i] = ub
 
@@ -104,7 +119,7 @@ for i in range(1, h):
 # rearrange interface positions
 for i in range(0, h):
     # set white for a boundary 
-    Intf[i,Intb[i]] = 255
+    Intf[i,int(Intb[i])] = 255
     # interface : temporal 
     # Intb[i] = w - Intb[i]
 
@@ -144,7 +159,8 @@ for i in range(0, h):
 #plt.show()
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbub, 'r')
     
-plt.plot(Y, Int0, 'k', Y,Intbub, 'r')
+#plt.plot(Y, Intb, 'b', Y,Intbub, 'r--')
+plt.plot(Y, Intb, 'b')
 
 #plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
