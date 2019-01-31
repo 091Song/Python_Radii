@@ -28,7 +28,8 @@ imgBW = cv2.imread('SampleImage.jpg', 0) # Black and White image
 ### Show images
 #cv2.imshow('Color', imgCL)
 cv2.imshow('BlackWhite', imgBW)
-cv2.waitKey(0)
+# cv2.waitKey(0) temporal consideration
+cv2.waitKey(5)
 cv2.destroyAllWindows()
 
 ### save an image
@@ -45,21 +46,36 @@ Y = np.arange(h)
 Intf = np.zeros((h,w), dtype = imgBW.dtype )
 Intb = np.zeros(h)
 
+# check initial value 
+#Intb[0] = pd.Series(imgBW[0,:]).idxmin()
+
+#sr=100 # search range 
+
 # check the darkest point at a height i
 for i in range(0, h):
     # an index for the darkest point at a height i
-    lmin = pd.Series(imgBW[i,:]).idxmin()
+    #lmin = pd.Series(imgBW[i, Intb[i-1]-sr: Intb[i-1]+sr ]).idxmin()
+    Intb[i] = pd.Series(imgBW[i, :]).idxmin()
     # currently set white for a boundary value
-    Intb[i] = w - lmin
-    Intf[i,lmin] = 255 
+    #Intb[i] = w - lmin
+    #Intf[i,lmin] = 255 
 
-# ignore values < 0
+# ignore values < 0 
+# sort difference < 100 -> turn them 0
     
+# rearrange
+for i in range(0, h):
+    Intf[i,Intb[i]] = 255 
+    Intb[i] = w - Intb[i]
+
+
 
 ########
 # update later
     # if there are two data points which have same minimums
     # ignore the noisy points
+    
+    # use a function to obtain an initial value
 ########
         
     
@@ -86,7 +102,8 @@ for i in range(0, h):
 #plt.subplot(2,2,4); plt.plot(Y,Intb)
 
 #plt.show()
-
 plt.plot(Y,Intb)
 
+#plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
+#plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
 plt.show()
