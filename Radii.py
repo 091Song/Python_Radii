@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Practice: OpenCV
-    Basic Image processing: Read, show, write, convert color
-    Extract image data
     
 @author: Y.Song
 """
@@ -47,76 +44,117 @@ Intf = np.zeros((h,w), dtype = imgBW.dtype )
 
 Int0 = np.zeros(h)
 Intb = np.zeros(h)
-Intbub = np.zeros(h) ## temporal - comparison
+Intbt = np.zeros(h) ## temporal - comparison
+
+# for local depth 
+BWdepth = np.zeros(w)
 
 # check initial two values
 Int0[0] = pd.Series(imgBW[0,:]).idxmin()
 Intb[0] = pd.Series(imgBW[0,:]).idxmin()
+
+Int0[1] = pd.Series(imgBW[0,:]).idxmin()
+Intb[1] = pd.Series(imgBW[0,:]).idxmin()
+
 # temporal
-Intbub[0] = Intb[0] 
+Intbt[0] = Intb[0] 
+Intbt[1] = Intb[1] 
 
 # search ranges 
 sr = 100 # search limit
-ub = w-sr # upper boundary
-lw = sr
+ub = 1100 # upper boundary
+lb = sr
 
-# check the darkest point at a height i 
-# use differences
-for i in range(1, h):
-    # initial interpolation
+# use color depth
+ldep = 100
+
+# Initial interpolation: interface positions
+for i in range(2, h):
+    # raw interpolation
     Int0[i] = pd.Series(imgBW[i,:]).idxmin()
+    
+    ###
+    '''
+    cdep = imgBW[i,Int0[i]]
     # differences
     diff = np.abs(Int0[i] - Int0[i-1])
-    
     
     # interface positions 
     # Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
     
     
+    #if (diff < 0.5 * w ):
     # sort step 1: using difference to 
-    if (diff < 0.5 * w ):
+    if ( diff < 0.5 * w and cdep < ldep):
         # ignore data below ub
-        Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
+        Intb[i] = pd.Series(imgBW[i,lb:ub]).idxmin() + lb
         
     else:
         Intb[i] = ub #Intb[i-1]
+       '''
+       
+    #######
+    # using depth works fine typically
+    # copy local BW depth (i.e. at i)
+    # BWdepth = imgBW[i,:]
+    # initial check: color depth for interface
+    Intb[i] = pd.Series(imgBW[i,int(lb):int(ub)]).idxmin() + int(lb)
     
-    '''
-    # upper limit
-    Intbub[i] = pd.Series(imgBW[i,:]).idxmin()
-    ulim = int(Intbub[i-1] + sr)
-    # lower limit
-    llim = int(Intbub[i-1] - sr)
+    # differences
+    diffp = Intb[i-2] - Intb[i-1]
+    diffc = Intb[i-1] - Intb[i]
     
-    if (Intbub[i] < ub ):
-        
-        Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
-        
-        if (llim < sr):
-            Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin() 
-        else:
-            Intbub[i] = pd.Series(imgBW[i,llim:ulim]).idxmin() 
-        
+    if (diffp < 0) :
+        # lim1 is close to the dendrite tip
+        # lim2 is close to the groove (far away from a tip)
+        lim1 = Intb[i-1] + diffp - sr
+        lim2 = Intb[i-1] - diffp + sr
     else:
-        Intbub[i] = ub '''
+        lim1 = Intb[i-1] - diffp - sr
+        lim2 = Intb[i-1] + diffp + sr
+    
+    # rearrange limits
+    lim1 = lim1 if lim1 > sr else sr
+    lim2 = lim2 if lim2 < ub else ub
+    
+    #if (Intbt[i-1] < )
+    
+    if ( lim2 == ub and diffc < 10 ):
+        Intb[i] = ub
+    elif (diffc > 200):
+        # if the variation is too large
+        Intb[i] = ub
+    else:
+        Intb[i] = \
+        pd.Series(imgBW[i,int(lim1):int(lim2)]).idxmin() + int(lim1)
+        
+# so far the Intb array saves interface positions
 
+
+
+# Tune interface interpolation
+# manually set sr for interface reevaluation
+sr = 10
+for i in range(sr+1, h-sr-1):
+    low = np.mean(Intb[ int(i-1-sr) : int(i-1)])
+    high = np.mean(Intb[ int(i+1) : int(i+1+sr)])
+        
+    # swap correctly
+    if (low > high):
+        low, high = high, low
     
+    diff = int(high - low)
     
-    
-    # due to the image processing
-    
-    
-    # llim is close to the dendrite tip
-    # ulim is close to the groove (far away from a tip)
-    #llim = 100
-    #Intb[i-1] - sr if Intb[i-1] > sr else 0 
-    #ulim = Intb[i-1] + sr
-    
-            
-    
-# ignore values < 0 
-# sort difference < 100 -> turn them 0
-    
+    # reevaluate interface positions
+    # manually set the serching range as [low -5, high + 5]
+    if (diff > 0):
+        Intb[i] = \
+        pd.Series(imgBW[i,int(low-5):int(high+5)]).idxmin() + int(low-5)
+
+# Currently works fine
+# for the reevaluation, possible to use a local 
+# minimum depth near the interface (future development)
+
 # rearrange interface positions
 for i in range(0, h):
     # set white for a boundary 
@@ -124,15 +162,6 @@ for i in range(0, h):
     # interface : temporal 
     # Intb[i] = w - Intb[i]
 
-
-
-########
-# update later
-    # if there are two data points which have same minimums
-    # ignore the noisy points
-    
-    # use a function to obtain an initial value
-########
         
     
 ### This is for check image 
@@ -158,13 +187,23 @@ for i in range(0, h):
 #plt.subplot(2,2,4); plt.plot(Y,Intb)
 
 #plt.show()
-#plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbub, 'r')
-    
-plt.plot(Y[0:200], Int0[0:200], 'k', Y[0:200],Intb[0:200], 'r--')
+#plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbt, 'r')
+
+#plt.plot(Y[600:800],Intb[600:800], 'b')
+#plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
+
+plt.plot(Y,Intb, 'b')
+
+chkl = 450
+chkr = 500
+#plt.plot(Y[chkl:chkr], Int0[chkl:chkr], 'k', Y[chkl:chkr],Intb[chkl:chkr], 'r.')
 #plt.plot(Y, Intb, 'b')
 plt.show()
 
 plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
-plt.plot(Y[1:201], (Intb[2:202] - Intb[0:200]))
+plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
+plt.show()
+
+plt.plot(X,imgBW[475,:]) #, X, BWdepth)
 plt.show()
