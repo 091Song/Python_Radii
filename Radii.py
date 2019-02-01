@@ -68,8 +68,7 @@ lb = sr
 # use color depth
 ldep = 100
 
-# check the darkest point at a height i 
-# use differences
+# Initial interpolation: interface positions
 for i in range(2, h):
     # raw interpolation
     Int0[i] = pd.Series(imgBW[i,:]).idxmin()
@@ -129,9 +128,22 @@ for i in range(2, h):
         Intb[i] = \
         pd.Series(imgBW[i,int(lim1):int(lim2)]).idxmin() + int(lim1)
         
-        
+# so far the Intb array saves interface positions
+# Tune interface interpolation
+sr = 10
+for i in range(sr+1, h-sr-1):
+    low = np.mean(Intb[ int(i-1-sr) : int(i-1)])
+    high = np.mean(Intb[ int(i+1) : int(i+1+sr)])
     
+    # swap correctly
+    if (low > high):
+        low, high = high, low
         
+    if ( Intb[i] != ub and Intb[i] > high ) :
+        Intb[i] = Intb[i-1]
+        #print(i)
+    
+    
 # rearrange interface positions
 for i in range(0, h):
     # set white for a boundary 
@@ -139,14 +151,6 @@ for i in range(0, h):
     # interface : temporal 
     # Intb[i] = w - Intb[i]
 
-
-
-########
-# update later
-    # if there are two data points which have same minimums
-    # ignore the noisy points
-    
-########
         
     
 ### This is for check image 
@@ -172,8 +176,9 @@ for i in range(0, h):
 #plt.subplot(2,2,4); plt.plot(Y,Intb)
 
 #plt.show()
-plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbt, 'r')
+#plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbt, 'r')
 
+plt.plot(Y[800:850],Intb[800:850], 'b.')
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
 
 chkr = 600
