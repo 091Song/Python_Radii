@@ -147,41 +147,7 @@ for i in range(sr+1, h-sr-1):
         Intb[i] = \
         pd.Series(imgBW[i,int(low):int(high)]).idxmin() + int(low)
         
-    
-    # find the second minimum
-    '''
-    if ( Intb[i] != ub and Intb[i] > high ) :
-        # searching for the minimum
-        # not necessary to find the lower searching limit: set as 0
-        lim2 = int(Intb[i] - 1)
         
-        Intb[i] = \
-        pd.Series(imgBW[i,0:lim2]).idxmin()
-        
-    
-    elif ( Intb[i] != ub and Intb[i] < low ) :
-        # reevaluate limits
-        lim1 = int(Intb[i]+1)
-        #lim2 = pd.Series(imgBW[i,lim1:int(high)]).idxmax() + int(lim1)
-        
-        print(i, Intb[i], lim1, int(low), high, int(high))
-        
-        #Intb[i] = \
-        #pd.Series(imgBW[i,lim1:lim2]).idxmin() + int(lim1)
-        
-        #print(i)
-    
-    '''
-    
-    ''' use previou value
-    if ( Intb[i] != ub and Intb[i] > high ) :
-        #Intb[i] = Intb[i-1]
-        
-    elif ( Intb[i] != ub and Intb[i] < low ) :
-        Intb[i] = Intb[i-1]
-        #print(i)
-    '''
-    
 # rearrange interface positions
 for i in range(0, h):
     # set white for a boundary 
