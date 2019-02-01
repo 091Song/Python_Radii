@@ -135,17 +135,52 @@ sr = 10
 for i in range(sr+1, h-sr-1):
     low = np.mean(Intb[ int(i-1-sr) : int(i-1)])
     high = np.mean(Intb[ int(i+1) : int(i+1+sr)])
-    
+        
     # swap correctly
     if (low > high):
         low, high = high, low
+    
+    diff = int(high - low)
+    
+    # reevaluate interface positions
+    if (diff > 0):
+        Intb[i] = \
+        pd.Series(imgBW[i,int(low):int(high)]).idxmin() + int(low)
         
+    
+    # find the second minimum
+    '''
     if ( Intb[i] != ub and Intb[i] > high ) :
-        Intb[i] = Intb[i-1]
+        # searching for the minimum
+        # not necessary to find the lower searching limit: set as 0
+        lim2 = int(Intb[i] - 1)
+        
+        Intb[i] = \
+        pd.Series(imgBW[i,0:lim2]).idxmin()
+        
+    
+    elif ( Intb[i] != ub and Intb[i] < low ) :
+        # reevaluate limits
+        lim1 = int(Intb[i]+1)
+        #lim2 = pd.Series(imgBW[i,lim1:int(high)]).idxmax() + int(lim1)
+        
+        print(i, Intb[i], lim1, int(low), high, int(high))
+        
+        #Intb[i] = \
+        #pd.Series(imgBW[i,lim1:lim2]).idxmin() + int(lim1)
+        
+        #print(i)
+    
+    '''
+    
+    ''' use previou value
+    if ( Intb[i] != ub and Intb[i] > high ) :
+        #Intb[i] = Intb[i-1]
+        
     elif ( Intb[i] != ub and Intb[i] < low ) :
         Intb[i] = Intb[i-1]
         #print(i)
-    
+    '''
     
 # rearrange interface positions
 for i in range(0, h):
@@ -186,8 +221,8 @@ for i in range(0, h):
 
 plt.plot(Y,Intb, 'b')
 
-chkr = 600
-#plt.plot(Y[0:chkr], Int0[0:chkr], 'k', Y[0:chkr],Intbt[0:chkr], 'r--')
+chkr = 500
+#plt.plot(Y[400:chkr], Int0[400:chkr], 'k', Y[400:chkr],Intb[400:chkr], 'r.')
 #plt.plot(Y, Intb, 'b')
 plt.show()
 
@@ -196,5 +231,5 @@ plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
 plt.show()
 
-plt.plot(X[200:400],imgBW[239,200:400]) #, X, BWdepth)
+plt.plot(X,imgBW[501,:]) #, X, BWdepth)
 plt.show()
