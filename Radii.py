@@ -130,6 +130,7 @@ for i in range(2, h):
         
 # so far the Intb array saves interface positions
 # Tune interface interpolation
+# need to update to use second minimum
 sr = 10
 for i in range(sr+1, h-sr-1):
     low = np.mean(Intb[ int(i-1-sr) : int(i-1)])
@@ -140,6 +141,8 @@ for i in range(sr+1, h-sr-1):
         low, high = high, low
         
     if ( Intb[i] != ub and Intb[i] > high ) :
+        Intb[i] = Intb[i-1]
+    elif ( Intb[i] != ub and Intb[i] < low ) :
         Intb[i] = Intb[i-1]
         #print(i)
     
@@ -178,8 +181,10 @@ for i in range(0, h):
 #plt.show()
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbt, 'r')
 
-plt.plot(Y[800:850],Intb[800:850], 'b.')
+#plt.plot(Y[600:800],Intb[600:800], 'b')
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
+
+plt.plot(Y,Intb, 'b')
 
 chkr = 600
 #plt.plot(Y[0:chkr], Int0[0:chkr], 'k', Y[0:chkr],Intbt[0:chkr], 'r--')
@@ -191,5 +196,5 @@ plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
 plt.show()
 
-plt.plot(X,imgBW[100,:]) #, X, BWdepth)
+plt.plot(X[200:400],imgBW[239,200:400]) #, X, BWdepth)
 plt.show()
