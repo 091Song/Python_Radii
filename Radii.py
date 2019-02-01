@@ -62,9 +62,8 @@ Intbt[1] = Intb[1]
 
 # search ranges 
 sr = 100 # search limit
-#ub = w-sr # upper boundary
 ub = 1100 # upper boundary
-lw = sr
+lb = sr
 
 # use color depth
 ldep = 100
@@ -72,8 +71,11 @@ ldep = 100
 # check the darkest point at a height i 
 # use differences
 for i in range(2, h):
-    # initial interpolation
+    # raw interpolation
     Int0[i] = pd.Series(imgBW[i,:]).idxmin()
+    
+    ###
+    '''
     cdep = imgBW[i,Int0[i]]
     # differences
     diff = np.abs(Int0[i] - Int0[i-1])
@@ -86,69 +88,50 @@ for i in range(2, h):
     # sort step 1: using difference to 
     if ( diff < 0.5 * w and cdep < ldep):
         # ignore data below ub
-        Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
+        Intb[i] = pd.Series(imgBW[i,lb:ub]).idxmin() + lb
         
     else:
         Intb[i] = ub #Intb[i-1]
-        
-#######
+       '''
+       
+    #######
     # using depth works fine typically
     # copy local BW depth (i.e. at i)
-    BWdepth = imgBW[i,:]
-    # using difference
-    diffp = Intbt[i-2] - Intbt[i-1]
+    # BWdepth = imgBW[i,:]
+    # initial check: color depth for interface
+    Intb[i] = pd.Series(imgBW[i,int(lb):int(ub)]).idxmin() + int(lb)
+    
+    # differences
+    diffp = Intb[i-2] - Intb[i-1]
+    diffc = Intb[i-1] - Intb[i]
     
     if (diffp < 0) :
-        lim1 = Intbt[i-1] + diffp - sr
-        lim2 = Intbt[i-1] - diffp + sr
+        # lim1 is close to the dendrite tip
+        # lim2 is close to the groove (far away from a tip)
+        lim1 = Intb[i-1] + diffp - sr
+        lim2 = Intb[i-1] - diffp + sr
     else:
-        lim1 = Intbt[i-1] - diffp - sr
-        lim2 = Intbt[i-1] + diffp + sr
+        lim1 = Intb[i-1] - diffp - sr
+        lim2 = Intb[i-1] + diffp + sr
     
-    # rearrange limts
+    # rearrange limits
     lim1 = lim1 if lim1 > sr else sr
     lim2 = lim2 if lim2 < ub else ub
     
+    #if (Intbt[i-1] < )
     
-    Intbt[i] = pd.Series(BWdepth[int(lim1):int(lim2)]).idxmin() + int(lim1)
-    #print(i, lim1, lim2)
-    
-    '''
-    # upper limit
-    Intbub[i] = pd.Series(imgBW[i,:]).idxmin()
-    ulim = int(Intbub[i-1] + sr)
-    # lower limit
-    llim = int(Intbub[i-1] - sr)
-    
-    if (Intbub[i] < ub ):
-        
-        Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin()
-        
-        if (llim < sr):
-            Intbub[i] = pd.Series(imgBW[i,0:ulim]).idxmin() 
-        else:
-            Intbub[i] = pd.Series(imgBW[i,llim:ulim]).idxmin() 
-        
+    if ( lim2 == ub and diffc < 10 ):
+        Intb[i] = ub
+    elif (diffc > 200):
+        # if the variation is too large
+        Intb[i] = ub
     else:
-        Intbub[i] = ub '''
-
+        Intb[i] = \
+        pd.Series(imgBW[i,int(lim1):int(lim2)]).idxmin() + int(lim1)
+        
+        
     
-    
-    
-    # due to the image processing
-    
-    
-    # llim is close to the dendrite tip
-    # ulim is close to the groove (far away from a tip)
-    #llim = 100
-    #Intb[i-1] - sr if Intb[i-1] > sr else 0 
-    #ulim = Intb[i-1] + sr
-    
-            
-    
-# ignore values < 0 
-# sort difference < 100 -> turn them 0
-    
+        
 # rearrange interface positions
 for i in range(0, h):
     # set white for a boundary 
@@ -163,7 +146,6 @@ for i in range(0, h):
     # if there are two data points which have same minimums
     # ignore the noisy points
     
-    # use a function to obtain an initial value
 ########
         
     
@@ -194,8 +176,8 @@ plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbt, 'r')
 
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
 
-chkr = 400
-#plt.plot(Y[0:chkr], Int0[0:chkr], 'k', Y[0:chkr],Intb[0:chkr], 'r--')
+chkr = 600
+#plt.plot(Y[0:chkr], Int0[0:chkr], 'k', Y[0:chkr],Intbt[0:chkr], 'r--')
 #plt.plot(Y, Intb, 'b')
 plt.show()
 
@@ -204,5 +186,5 @@ plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
 plt.show()
 
-plt.plot(X,imgBW[100,:], X, BWdepth)
+plt.plot(X,imgBW[100,:]) #, X, BWdepth)
 plt.show()
