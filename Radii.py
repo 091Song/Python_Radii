@@ -57,11 +57,15 @@ sr = 100 # search limit
 ub = w-sr # upper boundary
 lw = sr
 
+# use color depth
+ldep = 100
+
 # check the darkest point at a height i 
 # use differences
 for i in range(1, h):
     # initial interpolation
     Int0[i] = pd.Series(imgBW[i,:]).idxmin()
+    cdep = imgBW[i,Int0[i]]
     # differences
     diff = np.abs(Int0[i] - Int0[i-1])
     
@@ -70,13 +74,16 @@ for i in range(1, h):
     # Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
     
     
+    #if (diff < 0.5 * w ):
     # sort step 1: using difference to 
-    if (diff < 0.5 * w ):
+    if (diff < 0.5 * w and cdep < ldep):
         # ignore data below ub
         Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
         
     else:
         Intb[i] = ub #Intb[i-1]
+        
+        
     
     '''
     # upper limit
@@ -156,12 +163,17 @@ for i in range(0, h):
 
 #plt.show()
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbub, 'r')
+
+plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
     
-plt.plot(Y[0:200], Int0[0:200], 'k', Y[0:200],Intb[0:200], 'r--')
+#plt.plot(Y[0:200], Int0[0:200], 'k', Y[0:200],Intb[0:200], 'r--')
 #plt.plot(Y, Intb, 'b')
 plt.show()
 
 plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
 plt.plot(Y[1:201], (Intb[2:202] - Intb[0:200]))
+plt.show()
+
+plt.plot(X,imgBW[125,:])
 plt.show()
