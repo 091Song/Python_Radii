@@ -160,9 +160,11 @@ for i in range(0, h):
 #plt.show()
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbub, 'r')
     
-plt.plot(Y, Int0, 'k', Y,Intb, 'r--')
+plt.plot(Y[0:200], Int0[0:200], 'k', Y[0:200],Intb[0:200], 'r--')
 #plt.plot(Y, Intb, 'b')
+plt.show()
 
-#plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
+plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
+plt.plot(Y[1:201], (Intb[2:202] - Intb[0:200]))
 plt.show()
