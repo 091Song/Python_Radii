@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Practice: OpenCV
-    Basic Image processing: Read, show, write, convert color
-    Extract image data
     
 @author: Y.Song
 """
