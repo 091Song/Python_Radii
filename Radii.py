@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 import numpy as np 
 # for data processing
 import pandas as pd
+# for interpolation
+# https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
+from scipy.optimize import curve_fit
 
 ### Read an image
 # image file name
@@ -154,6 +157,13 @@ for i in range(sr+1, h-sr-1):
 # Currently works fine
 # for the reevaluation, possible to use a local 
 # minimum depth near the interface (future development)
+        
+#####
+# from this point for interpolation
+#####        
+def 
+{
+}
 
 # rearrange interface positions
 for i in range(0, h):
