@@ -217,6 +217,11 @@ for i in range(1,len(Lmin)-1):
 # del Lmin
 del(Lmin)
 
+# number of tips
+tn = len(Tips)
+# index number of the most advanced tip
+idx_at = pd.Series(Tips[:,1]).idxmin()
+
 #####
 # from this point for interpolation
 #####        
