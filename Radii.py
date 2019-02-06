@@ -168,7 +168,7 @@ tipa = Intb.min()
 ## searching limt
 trange = tipa + 20
 
-# to save tip information
+# to save local minimums
 Lmin = np.zeros( (0,2) )
 
 # index
@@ -180,8 +180,7 @@ steps = 1
 
 
 while (idx < h):
-    
-    #temporal array
+    #temporal values
     locx = 0.
     locy = 0.
     
@@ -189,27 +188,34 @@ while (idx < h):
     if ( Intb[idx] < trange):
         # if (2.*Intb[idx] <= (Intb[idx-1] + Intb[idx+1]) ):
         if ( Intb[idx] < Intb[idx-1] and Intb[idx] < Intb[idx+1] ):
-            locx = idx
-            locy = Intb[idx]
+            
+            Lmin = np.append(Lmin, [ [ idx, Intb[idx] ] ] , axis = 0 )
             
         elif ( Intb[idx] == Intb[idx+1] ):
             while ( Intb[idx] == Intb[idx+steps] ):
                 steps += 1
             
-            locx = idx + 0.5*steps
-            locy = Intb[idx]
-                
-    
-    Lmin = np.append(Lmin, [ [ locx, locy ] ] , axis = 0 )
+            Lmin = np.append(Lmin, [ [ idx + 0.5*(steps-1), Intb[idx] ] ] ,\
+                                      axis = 0 )
+            
     
     idx = idx + steps
     steps = 1
     
 
 # so far local mimimums were saved. 
+# to save tip information
+Tips = np.zeros( (0,2) )
+
+for i in range(1,len(Lmin)-1):
+    
+    if ( Lmin[i,1] < Lmin[i-1,1] and Lmin[i,1] < Lmin[i+1,1] ):
+        Tips = np.append(Tips, [ Lmin[i,:] ] , axis = 0 )
 
 
-# interpret again 
+# behind this point Lmin array is not necessary
+# del Lmin
+del(Lmin)
 
 #####
 # from this point for interpolation
@@ -218,8 +224,8 @@ while (idx < h):
 
 
 # function def
-def QuadEq(x, a, b, c):
-    return a * (x**x) + b * x + c 
+#def QuadEq(x, a, b, c):
+    #return a * (x**x) + b * x + c 
     
 # 
 #cfit(QuadEq, )
@@ -262,7 +268,7 @@ for i in range(0, h):
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
 
 plt.plot(Y,Intb, 'b')
-plt.plot(Lmin[:,0], Lmin[:,1], 'r.')
+plt.plot(Tips[:,0], Tips[:,1], 'rx')
 plt.ylim(290,350)
 
 chkl = 450
