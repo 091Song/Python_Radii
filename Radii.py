@@ -169,7 +169,7 @@ tipa = Intb.min()
 trange = tipa + 20
 
 # to save tip information
-Tips = np.zeros( (1,2) )
+Lmin = np.zeros( (0,2) )
 
 # index
 # subtract data near boundaries
@@ -198,17 +198,13 @@ while (idx < h):
             
             locx = idx + 0.5*steps
             locy = Intb[idx]
-            
-            print(steps)
+                
     
-    
-    Tips = np.append(Tips, [ [ locx, locy ] ] , axis = 0 )
+    Lmin = np.append(Lmin, [ [ locx, locy ] ] , axis = 0 )
     
     idx = idx + steps
     steps = 1
     
-# remove first row
-Tips = np.delete(Tips, (0), axis = 0)
 
 # so far local mimimums were saved. 
 
@@ -266,7 +262,7 @@ for i in range(0, h):
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
 
 plt.plot(Y,Intb, 'b')
-plt.plot(Tips[:,0], Tips[:,1], 'r.')
+plt.plot(Lmin[:,0], Lmin[:,1], 'r.')
 plt.ylim(290,350)
 
 chkl = 450
