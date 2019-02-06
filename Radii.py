@@ -226,6 +226,31 @@ idx_at = pd.Series(Tips[:,1]).idxmin()
 # from this point for interpolation
 #####        
 
+# tips
+xtip = int(Tips[0,0])
+ytip = Tips[0,1]
+
+
+def LIMITS( ARR, tval, i0 = '0', steps = '+1'):
+    
+    larr = len(ARR)
+    
+    # target index
+    tidx = 0
+    
+    # judgement
+    if ( steps > 0 and i0 > larr ):
+        return 0
+    elif (steps < 0 and i0 < 0 ):
+        return 0
+    else: 
+        
+        while ( ARR[tidx] > tval ):
+            tidx += steps
+            return tidx
+
+
+# tip1
 
 
 # function def
@@ -274,7 +299,7 @@ for i in range(0, h):
 
 plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'rx')
-plt.ylim(290,350)
+#plt.ylim(290,350)
 
 chkl = 450
 chkr = 500
