@@ -18,8 +18,8 @@ import pandas as pd
 # https://docs.scipy.org/doc/scipy/reference/generated/
 # scipy.optimize.curve_fit.html
 #import scipy.optimize as opt
-#from scipy import optimize
-# from scipy.optimize import curve_fit
+from scipy import optimize as sciopt
+#from scipy.optimize import curve_fit
 
 ### Read an image
 # image file name
@@ -253,8 +253,14 @@ def LIMITS( ARR, tval, i0 = 0, steps = +1):
         return ( tidx - int( steps/np.abs(steps) ) )
     
 
-# tip1
-# diff length 
+
+# function def
+def QuadEq(x, a, b, c):
+    return a * (x**x) + b * x + c 
+    
+
+
+# diffusion length 
 ld = 270./4.
 
 # tips 
@@ -271,19 +277,17 @@ for i in range(0, len(Tips)):
     idxl = LIMITS( Intb, (ytip+ld), xtip, -1) 
     # an index for a higher upper limit
     idxu = LIMITS( Intb, (ytip+ld), xtip) 
-    
+        
     # need to printout these values
     # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
-
-
-
-
-# function def
-#def QuadEq(x, a, b, c):
-    #return a * (x**x) + b * x + c 
+    # popt, pcov = curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
     
+    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
+
+
+
 # 
-#cfit(QuadEq, )
+
 
 # rearrange interface positions
 for i in range(0, h):
