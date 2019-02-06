@@ -181,24 +181,39 @@ steps = 1
 
 while (idx < h):
     
-    if ( Intb[idx] < trange ):
-        Tips = np.append(Tips, [ [ idx, Intb[idx] ] ] , axis = 0 )
+    #temporal array
+    locx = 0.
+    locy = 0.
+    
+    # specify the range
+    if ( Intb[idx] < trange):
+        # if (2.*Intb[idx] <= (Intb[idx-1] + Intb[idx+1]) ):
+        if ( Intb[idx] < Intb[idx-1] and Intb[idx] < Intb[idx+1] ):
+            locx = idx
+            locy = Intb[idx]
+            
+        elif ( Intb[idx] == Intb[idx+1] ):
+            while ( Intb[idx] == Intb[idx+steps] ):
+                steps += 1
+            
+            locx = idx + 0.5*steps
+            locy = Intb[idx]
+            
+            print(steps)
+    
+    
+    Tips = np.append(Tips, [ [ locx, locy ] ] , axis = 0 )
     
     idx = idx + steps
+    steps = 1
     
-    
-'''
-for i in range (1,h-1):
-    
-    if ( 2.*Intb[i] <= (Intb[i-1] + Intb[i+1])  ):
-        Tips = np.append(Tips, [ [ i, Intb[i] ] ] , axis = 0 )
-        # print(i, Intb[i])
-
-'''
-
-
 # remove first row
 Tips = np.delete(Tips, (0), axis = 0)
+
+# so far local mimimums were saved. 
+
+
+# interpret again 
 
 #####
 # from this point for interpolation
@@ -252,6 +267,7 @@ for i in range(0, h):
 
 plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'r.')
+plt.ylim(290,350)
 
 chkl = 450
 chkr = 500
