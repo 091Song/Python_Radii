@@ -226,31 +226,56 @@ idx_at = pd.Series(Tips[:,1]).idxmin()
 # from this point for interpolation
 #####        
 
-# tips
-xtip = int(Tips[0,0])
-ytip = Tips[0,1]
-
-
-def LIMITS( ARR, tval, i0 = '0', steps = '+1'):
+def LIMITS( ARR, tval, i0 = 0, steps = +1):
+    # this function will find an idex of one value in ARR
+    # the value should be closest to the tval.
+    # the value shold also be equal to or lower than tval.
     
+    # upper lim
     larr = len(ARR)
-    
+        
     # target index
-    tidx = 0
+    tidx = i0
     
-    # judgement
-    if ( steps > 0 and i0 > larr ):
+    # estimation
+    if (steps == 0):
+        print("a step value cannot be 0.")
+        return 0
+    elif ( steps > 0 and i0 > larr ):
         return 0
     elif (steps < 0 and i0 < 0 ):
         return 0
     else: 
-        
-        while ( ARR[tidx] > tval ):
+        # search for the target idx
+        while ( ARR[tidx] <= tval and tidx >= 0 and tidx <= larr ):
             tidx += steps
-            return tidx
-
+        
+        return ( tidx - int( steps/np.abs(steps) ) )
+    
 
 # tip1
+# diff length 
+ld = 270./4.
+
+# tips 
+
+for i in range(0, len(Tips)):
+    
+    # find lower/upper limits for an interpolation
+    
+    # tips
+    xtip = int(Tips[i,0])
+    ytip = Tips[i,1]
+
+    # an index for a lower limit
+    idxl = LIMITS( Intb, (ytip+ld), xtip, -1) 
+    # an index for a higher upper limit
+    idxu = LIMITS( Intb, (ytip+ld), xtip) 
+    
+    # need to printout these values
+    # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
+
+
 
 
 # function def
