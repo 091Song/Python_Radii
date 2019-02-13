@@ -252,6 +252,7 @@ xtip = Tips[0,0]
 ytip = Tips[0,1]
 
 ### range
+'''
 idxl = 0
 idxh = 0
 
@@ -260,9 +261,17 @@ while (Lmin[idxh+1,0] - Lmin[idxh,0] < 100):
     
 
 popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1] )
+'''
 
+### use raw data
+# an index for a lower limit
+idxl = LIMITS( Intb, (ytip+ld), int(xtip), -1) 
+# an index for a higher upper limit
+idxh = LIMITS( Intb, (ytip+ld), int(xtip) )
+    
+popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
 
-
+###
 
 '''
 # tips 
@@ -329,7 +338,7 @@ for i in range(0, h):
 plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'rx')
 
-plt.plot( Lmin[:,0], Lmin[:,1], 'r--')
+plt.plot( Y[idxl:idxh], QuadEq(Y[idxl:idxh], *popt), 'r--')
 #plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
 #plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
 #plt.ylim(290,350)
@@ -338,17 +347,18 @@ plt.plot( Lmin[:,0], Lmin[:,1], 'r--')
 #chkr = 500
 #plt.plot(Y[chkl:chkr], Int0[chkl:chkr], 'k', Y[chkl:chkr],Intb[chkl:chkr], 'r.')
 #plt.plot(Y, Intb, 'b')
-
+plt.ylim(top = 500)
 plt.show()
 
 #plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
-plt.show()
 #plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
 #plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
 #plt.show()
 
 #plt.plot(X,imgBW[475,:]) #, X, BWdepth)
-plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
-plt.plot( Lmin[:,0], Lmin[:,1], 'r--')
+plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
+plt.plot( Y[idxl:idxh], QuadEq(Y[idxl:idxh], *popt), 'r--')
+
+plt.ylim(top = 320)
 plt.show()
