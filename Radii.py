@@ -369,4 +369,6 @@ plt.ylim(top = 320)
 plt.show()
 
 for idx in range(0, tn):
-    print(Fparams[idx,2])
+    rad = 1./(2. * Fparams[idx,2])
+    # previously calculated in unit of [pixel] spix = 902.2
+    print("radius of tip {:d} = {:.3f}".format(idx, rad * spix/1000.) )
