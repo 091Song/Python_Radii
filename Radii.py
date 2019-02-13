@@ -226,22 +226,34 @@ def LIMITS( ARR, tval, i0 = 0, steps = +1):
     # target index
     tidx = i0
     
+    # first estimation
+    if (i0 < 0 or i0 > larr):
+        print("Please check a tip position.")
+        return 0
+    
     # estimation
     if (steps == 0):
         print("a step value cannot be 0.")
         return 0
-    elif ( steps > 0 and i0 > larr ):
-        return 0
-    elif (steps < 0 and i0 < 0 ):
-        return 0
-    else: 
-        # search for the target idx
-        while ( ARR[tidx] <= tval and tidx >= 0 and tidx <= larr ):
+    elif (steps < 0) : 
+        
+        while (ARR[tidx] <= tval and tidx > 0 ) :
             tidx += steps
         
-        return ( tidx - int( steps/np.abs(steps) ) )
+        tidx = tidx - steps if tidx > 0 else 0
+        
+        return tidx
     
-
+    elif (steps > 0) :
+        
+        while (ARR[tidx] <= tval and tidx < larr ) :
+            tidx += steps
+        
+        tidx = tidx - steps if tidx < larr else larr
+        
+        return tidx 
+        
+        
 
 # function def
 def QuadEq(x, a, b, c):
@@ -250,8 +262,6 @@ def QuadEq(x, a, b, c):
 
 # diffusion length 
 ld = 270./4.
-
-# tips 
 
 # save fitting parameters and ranges of a tip
 Fparams = np.zeros( (tn,5) )
@@ -267,7 +277,7 @@ for i in range(0, tn):
     ytip = Tips[i,1]
     
     # searching distance
-    # initially use a small value
+    # initially use a small range
     # use a unit: pixel
     sdist = 0.1 * ld/spix
     
@@ -299,6 +309,9 @@ for i in range(0, tn):
         rlocal = 1./(2. * popt[0] )
                 
         ncheck += 1
+    
+    
+    
     
     # save searching range
     # unit: microns
@@ -394,7 +407,7 @@ for idx in range (0, tn):
                          Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
                          'r--')
 
-plt.ylim(top = 320)
+#plt.ylim(top = 320)
 plt.show()
 
 for idx in range(0, tn):
