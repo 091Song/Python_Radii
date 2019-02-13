@@ -262,7 +262,6 @@ while (Lmin[idxh+1,0] - Lmin[idxh,0] < 100):
     
 
 popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1] )
-'''
 
 ### use raw data
 # an index for a lower limit
@@ -292,27 +291,42 @@ Fparams[0,4] = popt[2]
 '''
 # tips 
 
-for i in range(0, len(Tips)):
+# save fitting parameters and ranges of a tip
+Fparams = np.zeros( (tn,5) )
+
+
+for i in range(0, tn):
     
     # find lower/upper limits for an interpolation
     
     # tips
-    xtip = int(Tips[i,0])
+    xtip = Tips[i,0]
     ytip = Tips[i,1]
 
     # an index for a lower limit
-    idxl = LIMITS( Intb, (ytip+ld), xtip, -1) 
+    idxl = LIMITS( Intb, (ytip+ld), int(xtip), -1) 
     # an index for a higher upper limit
-    idxu = LIMITS( Intb, (ytip+ld), xtip) 
+    idxh = LIMITS( Intb, (ytip+ld), int(xtip) )
         
     # need to printout these values
     # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
     # popt, pcov = curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
     
-    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
+    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
+    
+    # save data
+    # index of the lower limit
+    Fparams[i,0] = idxl
+    # index of the higer limit
+    Fparams[i,1] = idxh
+    # first parameter a
+    Fparams[i,2] = popt[0]
+    # second parameter b
+    Fparams[i,3] = popt[1]
+    # third parameter c
+    Fparams[i,4] = popt[2]
 
 # 
-'''
 
 # rearrange interface positions
 for i in range(0, h):
@@ -354,7 +368,12 @@ for i in range(0, h):
 plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'rx')
 
-plt.plot( Y[idxl:idxh], QuadEq(Y[idxl:idxh], *popt), 'r--')
+idxl = int(Fparams[0,0])
+idxh = int(Fparams[0,1])
+
+plt.plot( Y[idxl:idxh], \
+         QuadEq(Y[idxl:idxh], Fparams[0,2], Fparams[0,3], \
+         Fparams[0,4]), 'r--')
 #plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
 #plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
 #plt.ylim(290,350)
@@ -374,7 +393,8 @@ plt.show()
 
 #plt.plot(X,imgBW[475,:]) #, X, BWdepth)
 plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
-plt.plot( Y[idxl:idxh], QuadEq(Y[idxl:idxh], *popt), 'r--')
+plt.plot( Y[idxl:idxh], QuadEq(Y[idxl:idxh], Fparams[0,2], Fparams[0,3], \
+         Fparams[0,4]), 'r--')
 
 plt.ylim(top = 320)
 plt.show()
