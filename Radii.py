@@ -212,6 +212,7 @@ def LIMITS( ARR, tval, i0 = 0, steps = +1):
     # this function will find an idex of one value in ARR
     # the value should be closest to the tval.
     # the value shold also be equal to or lower than tval.
+    # output index
     
     # upper lim
     larr = len(ARR)
@@ -271,7 +272,22 @@ idxh = LIMITS( Intb, (ytip+ld), int(xtip) )
     
 popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
 
+# save fitting parameters and ranges of a tip
+Fparams = np.zeros( (tn,5) )
+# index of the lower limit
+Fparams[0,0] = idxl
+# index of the higer limit
+Fparams[0,1] = idxh
+# first parameter a
+Fparams[0,2] = popt[0]
+# second parameter b
+Fparams[0,3] = popt[1]
+# third parameter c
+Fparams[0,4] = popt[2]
+
 ###
+# Tips = np.zeros( (0,2) )
+
 
 '''
 # tips 
