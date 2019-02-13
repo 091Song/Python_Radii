@@ -251,11 +251,6 @@ def QuadEq(x, a, b, c):
 ld = 270./4.
 
 
-### (1) use previous Lmin array
-### tip
-xtip = Tips[0,0]
-ytip = Tips[0,1]
-
 # tips 
 
 # save fitting parameters and ranges of a tip
@@ -372,3 +367,6 @@ for idx in range (0, tn):
 
 plt.ylim(top = 320)
 plt.show()
+
+for idx in range(0, tn):
+    print(Fparams[idx,2])
