@@ -41,6 +41,10 @@ cv2.destroyAllWindows()
 ### (h, w): height and widht of an image
 h, w = imgBW.shape 
 
+### scale
+# nm/pixel
+spix = 902.2
+
 # set an array for a horizontal axis 
 X = np.arange(w)
 Y = np.arange(h)
@@ -252,48 +256,10 @@ ld = 270./4.
 xtip = Tips[0,0]
 ytip = Tips[0,1]
 
-### range
-'''
-idxl = 0
-idxh = 0
-
-while (Lmin[idxh+1,0] - Lmin[idxh,0] < 100):
-    idxh+=1
-    
-
-popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1] )
-
-### use raw data
-# an index for a lower limit
-idxl = LIMITS( Intb, (ytip+ld), int(xtip), -1) 
-# an index for a higher upper limit
-idxh = LIMITS( Intb, (ytip+ld), int(xtip) )
-    
-popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
-
-# save fitting parameters and ranges of a tip
-Fparams = np.zeros( (tn,5) )
-# index of the lower limit
-Fparams[0,0] = idxl
-# index of the higer limit
-Fparams[0,1] = idxh
-# first parameter a
-Fparams[0,2] = popt[0]
-# second parameter b
-Fparams[0,3] = popt[1]
-# third parameter c
-Fparams[0,4] = popt[2]
-
-###
-# Tips = np.zeros( (0,2) )
-
-
-'''
 # tips 
 
 # save fitting parameters and ranges of a tip
 Fparams = np.zeros( (tn,5) )
-
 
 for i in range(0, tn):
     
