@@ -246,7 +246,20 @@ def QuadEq(x, a, b, c):
 ld = 270./4.
 
 
-### purpose
+### (1) use previous Lmin array
+### tip
+xtip = Tips[0,0]
+ytip = Tips[0,1]
+
+### range
+idxl = 0
+idxh = 0
+
+while (Lmin[idxh+1,0] - Lmin[idxh,0] < 100):
+    idxh+=1
+    
+
+popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1] )
 
 
 
