@@ -44,6 +44,8 @@ h, w = imgBW.shape
 ### scale
 # nm/pixel
 spix = 902.2
+# microns/pixel
+spix = spix/1000.
 
 # set an array for a horizontal axis 
 X = np.arange(w)
@@ -246,15 +248,15 @@ def QuadEq(x, a, b, c):
     return a * (x**2) + b * x + c 
     
 
-
 # diffusion length 
 ld = 270./4.
-
 
 # tips 
 
 # save fitting parameters and ranges of a tip
 Fparams = np.zeros( (tn,5) )
+# searching range
+SearchR = np.zeros(tn)
 
 for i in range(0, tn):
     
@@ -263,17 +265,44 @@ for i in range(0, tn):
     # tips
     xtip = Tips[i,0]
     ytip = Tips[i,1]
-
+    
+    # searching distance
+    # initially use a small value
+    # use a unit: pixel
+    sdist = 0.1 * ld/spix
+    
     # an index for a lower limit
-    idxl = LIMITS( Intb, (ytip+ld), int(xtip), -1) 
+    idxl = LIMITS( Intb, (ytip+sdist), int(xtip), -1) 
     # an index for a higher upper limit
-    idxh = LIMITS( Intb, (ytip+ld), int(xtip) )
+    idxh = LIMITS( Intb, (ytip+sdist), int(xtip) )
         
     # need to printout these values
     # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
     # popt, pcov = curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
     
     popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
+    
+    rlocal = 1./(2. * popt[0] )
+    
+    # further estimation of a radius
+    # checking number
+    ncheck = 0
+    
+
+    while ( sdist + 1. < rlocal and ncheck < 1000 ):
+        # searching range
+        sdist = sdist + 1. 
+        
+        idxl = LIMITS( Intb, (ytip + sdist), int(xtip), -1) 
+        idxh = LIMITS( Intb, (ytip + sdist), int(xtip) )
+        popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
+        rlocal = 1./(2. * popt[0] )
+                
+        ncheck += 1
+    
+    # save searching range
+    # unit: microns
+    SearchR[i] = sdist*spix
     
     # save data
     # index of the lower limit
@@ -370,5 +399,5 @@ plt.show()
 
 for idx in range(0, tn):
     rad = 1./(2. * Fparams[idx,2])
-    # previously calculated in unit of [pixel] spix = 902.2
-    print("radius of tip {:d} = {:.3f}".format(idx, rad * spix/1000.) )
+    # previously calculated in unit of [pixel] 
+    print("radius of tip {:d} = {:.3f} microns".format(idx, rad * spix) )
