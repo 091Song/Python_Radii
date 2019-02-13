@@ -18,8 +18,8 @@ import pandas as pd
 # https://docs.scipy.org/doc/scipy/reference/generated/
 # scipy.optimize.curve_fit.html
 #import scipy.optimize as opt
-#from scipy import optimize
-# from scipy.optimize import curve_fit
+from scipy import optimize as sciopt
+#from scipy.optimize import curve_fit
 
 ### Read an image
 # image file name
@@ -40,6 +40,10 @@ cv2.destroyAllWindows()
 
 ### (h, w): height and widht of an image
 h, w = imgBW.shape 
+
+### scale
+# nm/pixel
+spix = 902.2
 
 # set an array for a horizontal axis 
 X = np.arange(w)
@@ -78,32 +82,14 @@ lb = sr
 for i in range(2, h):
     # raw interpolation
     Int0[i] = pd.Series(imgBW[i,:]).idxmin()
-    
-    ###
-    '''
-    cdep = imgBW[i,Int0[i]]
-    # differences
-    diff = np.abs(Int0[i] - Int0[i-1])
-    
-    # interface positions 
-    # Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
-    
-    
-    #if (diff < 0.5 * w ):
-    # sort step 1: using difference to 
-    if ( diff < 0.5 * w and cdep < ldep):
-        # ignore data below ub
-        Intb[i] = pd.Series(imgBW[i,lb:ub]).idxmin() + lb
-        
-    else:
-        Intb[i] = ub #Intb[i-1]
-       '''
-       
+           
     #######
     # using depth works fine typically
     # copy local BW depth (i.e. at i)
     # BWdepth = imgBW[i,:]
     # initial check: color depth for interface
+    #######
+    
     Intb[i] = pd.Series(imgBW[i,int(lb):int(ub)]).idxmin() + int(lb)
     
     # differences
@@ -215,20 +201,98 @@ for i in range(1,len(Lmin)-1):
 
 # behind this point Lmin array is not necessary
 # del Lmin
-del(Lmin)
+### del(Lmin) --> use for radius evalution
+
+# number of tips
+tn = len(Tips)
+# index number of the most advanced tip
+idx_at = pd.Series(Tips[:,1]).idxmin()
 
 #####
 # from this point for interpolation
 #####        
 
+def LIMITS( ARR, tval, i0 = 0, steps = +1):
+    # this function will find an idex of one value in ARR
+    # the value should be closest to the tval.
+    # the value shold also be equal to or lower than tval.
+    # output index
+    
+    # upper lim
+    larr = len(ARR)
+        
+    # target index
+    tidx = i0
+    
+    # estimation
+    if (steps == 0):
+        print("a step value cannot be 0.")
+        return 0
+    elif ( steps > 0 and i0 > larr ):
+        return 0
+    elif (steps < 0 and i0 < 0 ):
+        return 0
+    else: 
+        # search for the target idx
+        while ( ARR[tidx] <= tval and tidx >= 0 and tidx <= larr ):
+            tidx += steps
+        
+        return ( tidx - int( steps/np.abs(steps) ) )
+    
 
 
 # function def
-#def QuadEq(x, a, b, c):
-    #return a * (x**x) + b * x + c 
+def QuadEq(x, a, b, c):
+    return a * (x**2) + b * x + c 
     
+
+
+# diffusion length 
+ld = 270./4.
+
+
+### (1) use previous Lmin array
+### tip
+xtip = Tips[0,0]
+ytip = Tips[0,1]
+
+# tips 
+
+# save fitting parameters and ranges of a tip
+Fparams = np.zeros( (tn,5) )
+
+for i in range(0, tn):
+    
+    # find lower/upper limits for an interpolation
+    
+    # tips
+    xtip = Tips[i,0]
+    ytip = Tips[i,1]
+
+    # an index for a lower limit
+    idxl = LIMITS( Intb, (ytip+ld), int(xtip), -1) 
+    # an index for a higher upper limit
+    idxh = LIMITS( Intb, (ytip+ld), int(xtip) )
+        
+    # need to printout these values
+    # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
+    # popt, pcov = curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
+    
+    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
+    
+    # save data
+    # index of the lower limit
+    Fparams[i,0] = idxl
+    # index of the higer limit
+    Fparams[i,1] = idxh
+    # first parameter a
+    Fparams[i,2] = popt[0]
+    # second parameter b
+    Fparams[i,3] = popt[1]
+    # third parameter c
+    Fparams[i,4] = popt[2]
+
 # 
-#cfit(QuadEq, )
 
 # rearrange interface positions
 for i in range(0, h):
@@ -269,18 +333,42 @@ for i in range(0, h):
 
 plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'rx')
-plt.ylim(290,350)
 
-chkl = 450
-chkr = 500
+idxl = int(Fparams[0,0])
+idxh = int(Fparams[0,1])
+
+# idx=0
+for idx in range (0, tn):
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                         Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
+                         'r--')
+                
+#plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
+#plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
+#plt.ylim(290,350)
+
+#chkl = 450
+#chkr = 500
 #plt.plot(Y[chkl:chkr], Int0[chkl:chkr], 'k', Y[chkl:chkr],Intb[chkl:chkr], 'r.')
 #plt.plot(Y, Intb, 'b')
+plt.ylim(top = 500)
 plt.show()
 
+#plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
 #plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
 #plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
 #plt.show()
 
 #plt.plot(X,imgBW[475,:]) #, X, BWdepth)
-#plt.show()
+plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
+
+for idx in range (0, tn):
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                         Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
+                         'r--')
+
+plt.ylim(top = 320)
+plt.show()
