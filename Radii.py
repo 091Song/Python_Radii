@@ -371,9 +371,13 @@ plt.plot(Tips[:,0], Tips[:,1], 'rx')
 idxl = int(Fparams[0,0])
 idxh = int(Fparams[0,1])
 
-plt.plot( Y[idxl:idxh], \
-         QuadEq(Y[idxl:idxh], Fparams[0,2], Fparams[0,3], \
-         Fparams[0,4]), 'r--')
+# idx=0
+for idx in range (0, tn):
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                         Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
+                         'r--')
+                
 #plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
 #plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
 #plt.ylim(290,350)
@@ -393,8 +397,12 @@ plt.show()
 
 #plt.plot(X,imgBW[475,:]) #, X, BWdepth)
 plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
-plt.plot( Y[idxl:idxh], QuadEq(Y[idxl:idxh], Fparams[0,2], Fparams[0,3], \
-         Fparams[0,4]), 'r--')
+
+for idx in range (0, tn):
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+                         Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
+                         'r--')
 
 plt.ylim(top = 320)
 plt.show()
