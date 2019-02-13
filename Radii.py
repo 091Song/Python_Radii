@@ -290,7 +290,7 @@ for i in range(0, tn):
     # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
     # popt, pcov = curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
     
-    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
+    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh+1], Intb[idxl:idxh+1] )
     
     rlocal = 1./(2. * popt[0] )
     
@@ -305,13 +305,11 @@ for i in range(0, tn):
         
         idxl = LIMITS( Intb, (ytip + sdist), int(xtip), -1) 
         idxh = LIMITS( Intb, (ytip + sdist), int(xtip) )
-        popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
+        popt, pcov = sciopt.curve_fit(QuadEq, \
+                                      Y[idxl:idxh+1], Intb[idxl:idxh+1] )
         rlocal = 1./(2. * popt[0] )
                 
         ncheck += 1
-    
-    
-    
     
     # save searching range
     # unit: microns
@@ -376,8 +374,8 @@ idxh = int(Fparams[0,1])
 
 # idx=0
 for idx in range (0, tn):
-    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
-                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
                          Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
                          'r--')
                 
@@ -402,8 +400,8 @@ plt.show()
 plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
 
 for idx in range (0, tn):
-    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
-                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
                          Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
                          'r--')
 
