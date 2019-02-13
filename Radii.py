@@ -78,32 +78,14 @@ lb = sr
 for i in range(2, h):
     # raw interpolation
     Int0[i] = pd.Series(imgBW[i,:]).idxmin()
-    
-    ###
-    '''
-    cdep = imgBW[i,Int0[i]]
-    # differences
-    diff = np.abs(Int0[i] - Int0[i-1])
-    
-    # interface positions 
-    # Intb[i] = pd.Series(imgBW[i,lw:ub]).idxmin() + lw
-    
-    
-    #if (diff < 0.5 * w ):
-    # sort step 1: using difference to 
-    if ( diff < 0.5 * w and cdep < ldep):
-        # ignore data below ub
-        Intb[i] = pd.Series(imgBW[i,lb:ub]).idxmin() + lb
-        
-    else:
-        Intb[i] = ub #Intb[i-1]
-       '''
-       
+           
     #######
     # using depth works fine typically
     # copy local BW depth (i.e. at i)
     # BWdepth = imgBW[i,:]
     # initial check: color depth for interface
+    #######
+    
     Intb[i] = pd.Series(imgBW[i,int(lb):int(ub)]).idxmin() + int(lb)
     
     # differences
@@ -215,7 +197,7 @@ for i in range(1,len(Lmin)-1):
 
 # behind this point Lmin array is not necessary
 # del Lmin
-del(Lmin)
+### del(Lmin) --> use for radius evalution
 
 # number of tips
 tn = len(Tips)
@@ -263,6 +245,13 @@ def QuadEq(x, a, b, c):
 # diffusion length 
 ld = 270./4.
 
+
+### purpose
+
+
+
+
+'''
 # tips 
 
 for i in range(0, len(Tips)):
@@ -284,10 +273,8 @@ for i in range(0, len(Tips)):
     
     popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
 
-
-
 # 
-
+'''
 
 # rearrange interface positions
 for i in range(0, h):
@@ -328,18 +315,25 @@ for i in range(0, h):
 
 plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'rx')
+
+plt.plot( Lmin[:,0], Lmin[:,1], 'r--')
+#plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
 #plt.ylim(290,350)
 
-chkl = 450
-chkr = 500
+#chkl = 450
+#chkr = 500
 #plt.plot(Y[chkl:chkr], Int0[chkl:chkr], 'k', Y[chkl:chkr],Intb[chkl:chkr], 'r.')
 #plt.plot(Y, Intb, 'b')
+
 plt.show()
 
+#plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
+plt.show()
 #plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
 #plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
 #plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
 #plt.show()
 
 #plt.plot(X,imgBW[475,:]) #, X, BWdepth)
-#plt.show()
+plt.plot( Lmin[:,0], Lmin[:,1], 'r--')
+plt.show()
