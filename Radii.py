@@ -238,7 +238,7 @@ def LIMITS( ARR, tval, i0 = 0, steps = +1):
 
 # function def
 def QuadEq(x, a, b, c):
-    return a * (x**x) + b * x + c 
+    return a * (x**2) + b * x + c 
     
 
 
@@ -259,7 +259,8 @@ while (Lmin[idxh+1,0] - Lmin[idxh,0] < 100):
     idxh+=1
     
 
-popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1] )
+popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1],\
+                              maxfev=10000)
 
 
 
