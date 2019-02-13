@@ -259,8 +259,7 @@ while (Lmin[idxh+1,0] - Lmin[idxh,0] < 100):
     idxh+=1
     
 
-popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1],\
-                              maxfev=10000)
+popt, pcov = sciopt.curve_fit(QuadEq, Lmin[idxl:idxh,0], Lmin[idxl:idxh,1] )
 
 
 
@@ -331,6 +330,7 @@ plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'rx')
 
 plt.plot( Lmin[:,0], Lmin[:,1], 'r--')
+#plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
 #plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
 #plt.ylim(290,350)
 
@@ -349,5 +349,6 @@ plt.show()
 #plt.show()
 
 #plt.plot(X,imgBW[475,:]) #, X, BWdepth)
+plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
 plt.plot( Lmin[:,0], Lmin[:,1], 'r--')
 plt.show()
