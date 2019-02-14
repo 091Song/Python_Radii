@@ -4,6 +4,8 @@
 @author: Y.Song
 """
 # about data type: rfirend.tistory.com/tag/dtype
+# for clear variables
+# %reset -f
 
 ### import 
 # OpenCV 
@@ -204,7 +206,7 @@ for i in range(1,len(Lmin)-1):
         TidxLmin = np.append(TidxLmin, i)
         
 ## remove a number at index = 0
-np.delete(TidxLmin,0)
+TidxLmin = np.delete(TidxLmin,0)
 
 # behind this point Lmin array is not necessary
 # del Lmin
@@ -336,7 +338,25 @@ for i in range(0, tn):
 # index info is in TidxLmin
 
 for i in range(0, tn):
-    TidxLmin[i]
+    
+    i0 = TidxLmin[i]
+    
+    f0 = Lmin[i0, 1]
+    f1 = Lmin[i0+1, 1]
+    f2 = Lmin[i0+2, 1]
+    
+    h1 = np.abs(Lmin[i0, 0] - Lmin[i0+1, 0])
+    h2 = np.abs(Lmin[i0+1, 0] - Lmin[i0+2, 0])
+    
+    dydx = -1.* f0 * (2.*h1 + h2)/( h1*(h1+h2) ) \
+        + f1 * (h1+h2)/(h1*h2) \
+        - f2 * h1/(h2*(h1+h2))
+            
+    ddydxx = 2.*( h2* f0 - (h1+h2) * f1 + h1 * f2)/(h1*h2*(h1+h2))
+    
+    curvk = ddydxx / pow( (1 + dydx*dydx),3./2. )
+    
+    print( Lmin[i0, 0], Lmin[i0, 1], Tips[i,0], 1./curvk)
     
 
 
