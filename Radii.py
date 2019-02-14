@@ -4,6 +4,8 @@
 @author: Y.Song
 """
 # about data type: rfirend.tistory.com/tag/dtype
+# for clear variables
+# %reset -f
 
 ### import 
 # OpenCV 
@@ -44,6 +46,8 @@ h, w = imgBW.shape
 ### scale
 # nm/pixel
 spix = 902.2
+# microns/pixel
+spix = spix/1000.
 
 # set an array for a horizontal axis 
 X = np.arange(w)
@@ -197,7 +201,7 @@ for i in range(1,len(Lmin)-1):
     
     if ( Lmin[i,1] < Lmin[i-1,1] and Lmin[i,1] < Lmin[i+1,1] ):
         Tips = np.append(Tips, [ Lmin[i,:] ] , axis = 0 )
-
+        
 
 # behind this point Lmin array is not necessary
 # del Lmin
@@ -224,42 +228,49 @@ def LIMITS( ARR, tval, i0 = 0, steps = +1):
     # target index
     tidx = i0
     
+    # first estimation
+    if (i0 < 0 or i0 > larr):
+        print("Please check a tip position.")
+        return 0
+    
     # estimation
     if (steps == 0):
         print("a step value cannot be 0.")
         return 0
-    elif ( steps > 0 and i0 > larr ):
-        return 0
-    elif (steps < 0 and i0 < 0 ):
-        return 0
-    else: 
-        # search for the target idx
-        while ( ARR[tidx] <= tval and tidx >= 0 and tidx <= larr ):
+    elif (steps < 0) : 
+        
+        while (ARR[tidx] <= tval and tidx > 0 ) :
             tidx += steps
         
-        return ( tidx - int( steps/np.abs(steps) ) )
+        tidx = tidx - steps if tidx > 0 else 0
+        
+        return tidx
     
-
+    elif (steps > 0) :
+        
+        while (ARR[tidx] <= tval and tidx < larr ) :
+            tidx += steps
+        
+        tidx = tidx - steps if tidx < larr else larr
+        
+        return tidx 
+        
+        
 
 # function def
-def QuadEq(x, a, b, c):
-    return a * (x**2) + b * x + c 
+def QuadEq(x, a1, a2, a3):
+    return a1 * (x**2) + a2 * x + a3
     
-
+def EqOrder4(x, a1, a2, a3, a4, a5):
+    return a1*(x**4) + a2*(x**3) + a3*(x**2) + a4*x + a5
 
 # diffusion length 
 ld = 270./4.
 
-
-### (1) use previous Lmin array
-### tip
-xtip = Tips[0,0]
-ytip = Tips[0,1]
-
-# tips 
-
 # save fitting parameters and ranges of a tip
 Fparams = np.zeros( (tn,5) )
+# searching range
+SearchR = np.zeros(tn)
 
 for i in range(0, tn):
     
@@ -268,31 +279,84 @@ for i in range(0, tn):
     # tips
     xtip = Tips[i,0]
     ytip = Tips[i,1]
-
+    
+    # searching distance
+    # initially use a small range
+    # use a unit: pixel
+    sdist = 0.1 * ld/spix
+    
     # an index for a lower limit
-    idxl = LIMITS( Intb, (ytip+ld), int(xtip), -1) 
+    idxl = LIMITS( Intb, (ytip+sdist), int(xtip), -1) 
     # an index for a higher upper limit
-    idxh = LIMITS( Intb, (ytip+ld), int(xtip) )
+    idxh = LIMITS( Intb, (ytip+sdist), int(xtip) )
         
     # need to printout these values
     # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
     # popt, pcov = curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
     
-    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh], Intb[idxl:idxh] )
+    popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh+1], Intb[idxl:idxh+1] )
+    
+    rlocal = 1./(2. * popt[0] )
+    
+    # further estimation of a radius
+    # checking number
+    ncheck = 0
+    
+
+    while ( sdist + 1. < rlocal and ncheck < 1000 ):
+        # searching range
+        sdist = sdist + 1. 
+        
+        idxl = LIMITS( Intb, (ytip + sdist), int(xtip), -1) 
+        idxh = LIMITS( Intb, (ytip + sdist), int(xtip) )
+        popt, pcov = sciopt.curve_fit(QuadEq, \
+                                      Y[idxl:idxh+1], Intb[idxl:idxh+1] )
+        rlocal = 1./(2. * popt[0] )
+                
+        ncheck += 1
+    
+    # save searching range
+    # unit: microns
+    SearchR[i] = sdist*spix
     
     # save data
     # index of the lower limit
     Fparams[i,0] = idxl
     # index of the higer limit
     Fparams[i,1] = idxh
-    # first parameter a
+    # first parameter a1
     Fparams[i,2] = popt[0]
-    # second parameter b
+    # second parameter a2
     Fparams[i,3] = popt[1]
-    # third parameter c
+    # third parameter a3
     Fparams[i,4] = popt[2]
 
-# 
+# fit small range 
+Rtips = np.zeros(tn)
+
+for i in range(0, tn):
+    
+    # tips
+    xtip = Tips[i,0]
+    ytip = Tips[i,1]
+    
+    # an index for a lower limit
+    idxl = LIMITS( Intb, (ytip+10), int(xtip), -1) 
+    # an index for a higher upper limit
+    idxh = LIMITS( Intb, (ytip+10), int(xtip) )
+    #QuadEq EqOrder4
+    ## use 4th order for a curve fitting
+    popt, pcov = sciopt.curve_fit(EqOrder4, Y[idxl:idxh+1], Intb[idxl:idxh+1])
+    
+    dydx = 4.*popt[0]*pow(xtip,3) + 3.*popt[1]*pow(xtip,2) \
+            + 2.*popt[2]*xtip + popt[3]        
+    d2ydx2 = 12.*popt[0]*pow(xtip,2) + 6.*popt[1]*xtip + 2.*popt[2]
+    
+    curvk = d2ydx2 / pow( (1 + dydx*dydx),3./2. )
+    
+    Rtips[i] = spix/curvk
+
+
 
 # rearrange interface positions
 for i in range(0, h):
@@ -339,8 +403,8 @@ idxh = int(Fparams[0,1])
 
 # idx=0
 for idx in range (0, tn):
-    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
-                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
                          Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
                          'r--')
                 
@@ -365,10 +429,16 @@ plt.show()
 plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
 
 for idx in range (0, tn):
-    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
-                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1])], \
+    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
+                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
                          Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
                          'r--')
 
-plt.ylim(top = 320)
+#plt.ylim(top = 320)
 plt.show()
+
+for idx in range(0, tn):
+    rad = 1./(2. * Fparams[idx,2])
+    # previously calculated in unit of [pixel] 
+    print("radius of tip {:d} = {:.3f} microns \
+          (at the tip: {:.3f} microns)".format(idx, rad * spix, Rtips[idx]) )
