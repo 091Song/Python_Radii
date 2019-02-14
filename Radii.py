@@ -196,17 +196,12 @@ while (idx < h):
 # so far local mimimums were saved. 
 # to save tip information
 Tips = np.zeros( (0,2) )
-# define here for initialization
-TidxLmin = 0 
 
 for i in range(1,len(Lmin)-1):
     
     if ( Lmin[i,1] < Lmin[i-1,1] and Lmin[i,1] < Lmin[i+1,1] ):
         Tips = np.append(Tips, [ Lmin[i,:] ] , axis = 0 )
-        TidxLmin = np.append(TidxLmin, i)
         
-## remove a number at index = 0
-TidxLmin = np.delete(TidxLmin,0)
 
 # behind this point Lmin array is not necessary
 # del Lmin
@@ -263,9 +258,11 @@ def LIMITS( ARR, tval, i0 = 0, steps = +1):
         
 
 # function def
-def QuadEq(x, a, b, c):
-    return a * (x**2) + b * x + c 
+def QuadEq(x, a1, a2, a3):
+    return a1 * (x**2) + a2 * x + a3
     
+def EqOrder4(x, a1, a2, a3, a4, a5):
+    return a1*(x**4) + a2*(x**3) + a3*(x**2) + a4*x + a5
 
 # diffusion length 
 ld = 270./4.
@@ -327,47 +324,37 @@ for i in range(0, tn):
     Fparams[i,0] = idxl
     # index of the higer limit
     Fparams[i,1] = idxh
-    # first parameter a
+    # first parameter a1
     Fparams[i,2] = popt[0]
-    # second parameter b
+    # second parameter a2
     Fparams[i,3] = popt[1]
-    # third parameter c
+    # third parameter a3
     Fparams[i,4] = popt[2]
 
 # fit small range 
-# index info is in TidxLmin
+Rtips = np.zeros(tn)
 
 for i in range(0, tn):
     
-    i0 = TidxLmin[i]
-    stp = -1
-    stp2 = 2*stp
+    # tips
+    xtip = Tips[i,0]
+    ytip = Tips[i,1]
     
-    '''
-    f0 = Lmin[i0, 1]
-    f1 = Lmin[i0+stp, 1]
-    f2 = Lmin[i0+stp2, 1]
-    '''
+    # an index for a lower limit
+    idxl = LIMITS( Intb, (ytip+10), int(xtip), -1) 
+    # an index for a higher upper limit
+    idxh = LIMITS( Intb, (ytip+10), int(xtip) )
+    #QuadEq EqOrder4
+    ## use 4th order for a curve fitting
+    popt, pcov = sciopt.curve_fit(EqOrder4, Y[idxl:idxh+1], Intb[idxl:idxh+1])
     
-    f0 = 0
-    f1 = Lmin[i0+stp, 1] - Lmin[i0, 1]
-    f2 = Lmin[i0+stp2, 1] - Lmin[i0, 1]
+    dydx = 4.*popt[0]*pow(xtip,3) + 3.*popt[1]*pow(xtip,2) \
+            + 2.*popt[2]*xtip + popt[3]        
+    d2ydx2 = 12.*popt[0]*pow(xtip,2) + 6.*popt[1]*xtip + 2.*popt[2]
     
+    curvk = d2ydx2 / pow( (1 + dydx*dydx),3./2. )
     
-    h1 = np.abs(Lmin[i0, 0] - Lmin[i0+stp, 0])
-    h2 = np.abs(Lmin[i0+stp, 0] - Lmin[i0+stp2, 0])
-    
-    dydx = -1.* f0 * (2.*h1 + h2)/( h1*(h1+h2) ) \
-        + f1 * (h1+h2)/(h1*h2) \
-        - f2 * h1/(h2*(h1+h2))
-            
-    ddydxx = 2.*( h2* f0 - (h1+h2) * f1 + h1 * f2)/(h1*h2*(h1+h2))
-    
-    curvk = ddydxx / pow( (1 + dydx*dydx),3./2. )
-    
-    print( Lmin[i0, 0], Lmin[i0, 1], Tips[i,0], 1./curvk)
-    print( i0, f0, f1, f2, h1, h2, dydx, ddydxx)
-    
+    Rtips[i] = spix/curvk
 
 
     
