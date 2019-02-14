@@ -340,13 +340,22 @@ for i in range(0, tn):
 for i in range(0, tn):
     
     i0 = TidxLmin[i]
+    stp = -1
+    stp2 = 2*stp
     
+    '''
     f0 = Lmin[i0, 1]
-    f1 = Lmin[i0+1, 1]
-    f2 = Lmin[i0+2, 1]
+    f1 = Lmin[i0+stp, 1]
+    f2 = Lmin[i0+stp2, 1]
+    '''
     
-    h1 = np.abs(Lmin[i0, 0] - Lmin[i0+1, 0])
-    h2 = np.abs(Lmin[i0+1, 0] - Lmin[i0+2, 0])
+    f0 = 0
+    f1 = Lmin[i0+stp, 1] - Lmin[i0, 1]
+    f2 = Lmin[i0+stp2, 1] - Lmin[i0, 1]
+    
+    
+    h1 = np.abs(Lmin[i0, 0] - Lmin[i0+stp, 0])
+    h2 = np.abs(Lmin[i0+stp, 0] - Lmin[i0+stp2, 0])
     
     dydx = -1.* f0 * (2.*h1 + h2)/( h1*(h1+h2) ) \
         + f1 * (h1+h2)/(h1*h2) \
@@ -357,6 +366,7 @@ for i in range(0, tn):
     curvk = ddydxx / pow( (1 + dydx*dydx),3./2. )
     
     print( Lmin[i0, 0], Lmin[i0, 1], Tips[i,0], 1./curvk)
+    print( i0, f0, f1, f2, h1, h2, dydx, ddydxx)
     
 
 
