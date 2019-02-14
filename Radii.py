@@ -194,12 +194,17 @@ while (idx < h):
 # so far local mimimums were saved. 
 # to save tip information
 Tips = np.zeros( (0,2) )
+# define here for initialization
+TidxLmin = 0 
 
 for i in range(1,len(Lmin)-1):
     
     if ( Lmin[i,1] < Lmin[i-1,1] and Lmin[i,1] < Lmin[i+1,1] ):
         Tips = np.append(Tips, [ Lmin[i,:] ] , axis = 0 )
-
+        TidxLmin = np.append(TidxLmin, i)
+        
+## remove a number at index = 0
+np.delete(TidxLmin,0)
 
 # behind this point Lmin array is not necessary
 # del Lmin
@@ -327,7 +332,18 @@ for i in range(0, tn):
     # third parameter c
     Fparams[i,4] = popt[2]
 
-# 
+# fit small range 
+# index info is in TidxLmin
+
+for i in range(0, tn):
+    TidxLmin[i]
+    
+
+
+    
+
+
+
 
 # rearrange interface positions
 for i in range(0, h):
