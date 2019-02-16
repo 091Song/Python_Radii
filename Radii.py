@@ -442,3 +442,6 @@ for idx in range(0, tn):
     # previously calculated in unit of [pixel] 
     print("radius of tip {:d} = {:.3f} microns \
           (at the tip: {:.3f} microns)".format(idx, rad * spix, Rtips[idx]) )
+
+
+## save data
