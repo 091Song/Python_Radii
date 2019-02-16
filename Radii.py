@@ -354,7 +354,7 @@ for i in range(0, tn):
     
     curvk = d2ydx2 / pow( (1 + dydx*dydx),3./2. )
     
-    Rtips[i] = spix/curvk
+    Rtips[i] = 1/curvk
 
 
 
@@ -437,12 +437,13 @@ for idx in range (0, tn):
 #plt.ylim(top = 320)
 plt.show()
 
+'''
 for idx in range(0, tn):
     rad = 1./(2. * Fparams[idx,2])
     # previously calculated in unit of [pixel] 
     print("radius of tip {:d} = {:.3f} microns \
-          (at the tip: {:.3f} microns)".format(idx, rad * spix, Rtips[idx]) )
-
+          (at the tip: {:.3f} microns)".format(idx, rad * spix, spix*Rtips[idx]) )
+'''
 
 ## save data
 Fout = open('radii.dat', 'w')
@@ -459,6 +460,17 @@ for idx in range(0, tn):
 
 for idx in range(0, tn):
     Fout.write("({:d})tip{:d}(par)\t".format(idx+1+tn, idx+1))
+
+Fout.write("\n")
+
+# data
+for idx in range(0, tn):
+    rad = spix/(2. * Fparams[idx,2])
+    Fout.write("{:.3f}\t".format(rad))
+
+for idx in range(0, tn):
+    rad = spix*Rtips[idx]
+    Fout.write("{:.3f}\t".format(rad))
 
 Fout.write("\n")
 
