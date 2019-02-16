@@ -445,3 +445,30 @@ for idx in range(0, tn):
 
 
 ## save data
+Fout = open('radii.dat', 'w')
+# First line: total number of cells
+Fout.write("#total number of cells: {:d}\n".format(tn))
+# second line: labels
+Fout.write("#tip for a tip radius (using polynomial function)\n")
+Fout.write("#par for a parabola fit \n")
+Fout.write("#units: microns \n")
+
+#labels
+for idx in range(0, tn):
+    Fout.write("({:d})tip{:d}(tip)\t".format(idx+1, idx+1))
+
+for idx in range(0, tn):
+    Fout.write("({:d})tip{:d}(par)\t".format(idx+1+tn, idx+1))
+
+Fout.write("\n")
+
+Fout.close()
+    
+    
+    
+    
+    
+    
+    
+    
+    
