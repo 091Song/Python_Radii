@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Radius calculation using a sample image    
+Radius calculation using a sample image
+ - Input: an interface image seen 
+         from the side of the sample
+
+ - Input parameters: 
+     spix: nm/pixel (written in an image)
+
+ - Output: Gray image (converted from the original)
+
 @author: Y.Song
 """
 
@@ -22,37 +30,41 @@ from scipy import optimize as sciopt
 ############################################################
 ############################################################
 
-
+############################################################
 ### Read an image
 # image file name
 IFname = 'SampleImage.jpg'
 
-# Read an image
-imgBW = cv2.imread('SampleImage.jpg', 0) # Black and White image
+# Read an image as gray color
+imgBW = cv2.imread('SampleImage.jpg', 0)
 
 ### Show images
-#cv2.imshow('Color', imgCL)
-cv2.imshow('BlackWhite', imgBW)
+# cv2.imshow('BlackWhite', imgBW)
 # cv2.waitKey(0) temporal consideration
-cv2.waitKey(5)
-cv2.destroyAllWindows()
+# cv2.waitKey(5)
+# cv2.destroyAllWindows()
 
-### save an image
-#cv2.imwrite('SampleGray.jpg', imgBW)
+### save the gray image
+cv2.imwrite('SampleGray.jpg', imgBW)
 
-### (h, w): height and widht of an image
+### (h, w): height and width of an image
 h, w = imgBW.shape 
-
-### scale
-# nm/pixel
-spix = 902.2
-# microns/pixel
-spix = spix/1000.
 
 # set an array for a horizontal axis 
 X = np.arange(w)
 Y = np.arange(h)
+############################################################
 
+############################################################
+### Input parameters
+# scale: nm/pixel
+spix = 902.2
+# scale: microns/pixel
+spix = spix/1000.
+############################################################
+
+
+############################################################
 # for new array: same data type as in the image
 Intf = np.zeros((h,w), dtype = imgBW.dtype )
 
