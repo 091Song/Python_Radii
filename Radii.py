@@ -7,8 +7,10 @@ Radius calculation using a sample image
  - Input parameters: 
      IFname: image file name
      spix: nm/pixel (written in an image)
-     sr: searching range
+     sr: searching range for interface positions
      ub: upper boundary
+     msr: searching range for refining interface positions
+     trange: searching range for cell tips
 
  - Output: Gray image (converted from the original)
 
@@ -151,27 +153,24 @@ for i in range(sr+1, h-sr-1):
         pd.Series(imgBW[i,int(low-msr):int(high+msr)]).idxmin() + int(low-msr)
 
 # Now, the Intb array has interface positions
-        
-## before fitting a curve
-## find tips        
 
-## most advanced tip
+### find cell tips        
+
+# for most advanced tip
 tipa = Intb.min()
 
-## searching limt
+# searching limits
 trange = tipa + 20
 
-# to save local minimums
+# For interface positiosn near tips
 Lmin = np.zeros( (0,2) )
 
 # index
-# subtract data near boundaries
-# 
 idx = 50
-# steps 
+# searching steps 
 steps = 1
 
-
+# Specify interface positions near tips
 while (idx < h):
     #temporal values
     locx = 0.
@@ -179,24 +178,24 @@ while (idx < h):
     
     # specify the range
     if ( Intb[idx] < trange):
-        # if (2.*Intb[idx] <= (Intb[idx-1] + Intb[idx+1]) ):
-        if ( Intb[idx] < Intb[idx-1] and Intb[idx] < Intb[idx+1] ):
-            
-            Lmin = np.append(Lmin, [ [ idx, Intb[idx] ] ] , axis = 0 )
-            
-        elif ( Intb[idx] == Intb[idx+1] ):
+        
+        if ( Intb[idx] == Intb[idx+1] ):
+            # in case of same interface positions consecutively
             while ( Intb[idx] == Intb[idx+steps] ):
                 steps += 1
             
             Lmin = np.append(Lmin, [ [ idx + 0.5*(steps-1), Intb[idx] ] ] ,\
                                       axis = 0 )
-            
-    
+        else:
+            # otherwise save the interfaces
+            Lmin = np.append(Lmin, [ [ idx, Intb[idx] ] ] , axis = 0 )
+        
+    # update index
     idx = idx + steps
+    # reset steps
     steps = 1
     
-
-# so far local mimimums were saved. 
+# so far, Lmin has refined interface positions near tips
 # to save tip information
 Tips = np.zeros( (0,2) )
 
