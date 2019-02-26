@@ -51,6 +51,7 @@ cv2.imwrite('Gray'+IFname, imgBW)
 
 ### (h, w): height and width of an image
 h, w = imgBW.shape 
+
 ############################################################
 
 ############################################################
@@ -67,14 +68,18 @@ spix = spix/1000.
 X = np.arange(w)
 Y = np.arange(h)
 
+### (sample) depth map at the center of an image
+plt.figure()
+plt.plot(X,imgBW[int(h/2),:])
+plt.show()
+###
+
+
 # for new array: same data type as in the image
 Intf = np.zeros((h,w), dtype = imgBW.dtype )
 
 ### for interface locations in an image
 Intb = np.zeros(h)
-
-### for local depth 
-BWdepth = np.zeros(w)
 
 ### intgerfaec interpolation
 
@@ -96,7 +101,6 @@ for i in range(2, h):
     #######
     # using depth works fine typically
     # copy local BW depth (i.e. at i)
-    # BWdepth = imgBW[i,:]
     # initial check: color depth for interface
     #######
     
@@ -426,7 +430,6 @@ plt.show()
 #plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
 #plt.show()
 
-#plt.plot(X,imgBW[475,:]) #, X, BWdepth)
 plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
 
 for idx in range (0, tn):
