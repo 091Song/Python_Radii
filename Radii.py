@@ -127,10 +127,13 @@ for i in range(2, h):
 # interpreted locations do not match the real interface sometimes.
 # Need to refine the interface position (below)
     
-# Refine interface positions
-# manually set sr for interface reevaluation
+### Refine interface positions
+# reset sr for interface reevaluation
 sr = int(sr/10)
+# ignore boundaries
 for i in range(sr+1, h-sr-1):
+    # refine the searching limits 
+    # using previous and next interface positions
     low = np.mean(Intb[ int(i-1-sr) : int(i-1)])
     high = np.mean(Intb[ int(i+1) : int(i+1+sr)])
         
@@ -141,14 +144,13 @@ for i in range(sr+1, h-sr-1):
     diff = int(high - low)
     
     # reevaluate interface positions
-    # manually set the serching range as [low -5, high + 5]
+    # manually set the serching range as [low -msr, high + msr]
+    msr = 5
     if (diff > 0):
         Intb[i] = \
-        pd.Series(imgBW[i,int(low-5):int(high+5)]).idxmin() + int(low-5)
+        pd.Series(imgBW[i,int(low-msr):int(high+msr)]).idxmin() + int(low-msr)
 
-# Currently works fine
-# for the reevaluation, possible to use a local 
-# minimum depth near the interface (future development)
+# Now, the Intb array has interface positions
         
 ## before fitting a curve
 ## find tips        
