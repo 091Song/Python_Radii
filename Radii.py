@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-    
+Radius calculation using a sample image    
 @author: Y.Song
 """
-# about data type: rfirend.tistory.com/tag/dtype
-# for clear variables
-# %reset -f
 
-### import 
+############################################################
+############################################################
+############################################################
+### import modules
 # OpenCV 
 import cv2
 # Matplotlib
@@ -17,11 +17,11 @@ import numpy as np
 # for data processing
 import pandas as pd
 # for interpolation
-# https://docs.scipy.org/doc/scipy/reference/generated/
-# scipy.optimize.curve_fit.html
-#import scipy.optimize as opt
 from scipy import optimize as sciopt
-#from scipy.optimize import curve_fit
+############################################################
+############################################################
+############################################################
+
 
 ### Read an image
 # image file name
