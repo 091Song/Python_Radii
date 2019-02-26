@@ -7,6 +7,8 @@ Radius calculation using a sample image
  - Input parameters: 
      IFname: image file name
      spix: nm/pixel (written in an image)
+     sr: searching range
+     ub: upper boundary
 
  - Output: Gray image (converted from the original)
 
@@ -60,6 +62,12 @@ h, w = imgBW.shape
 spix = 902.2
 # scale: microns/pixel
 spix = spix/1000.
+
+### search ranges 
+sr = 100 # search limit
+ub = 1100 # upper boundary
+lb = sr
+
 ############################################################
 
 
@@ -78,42 +86,35 @@ plt.show()
 Intb = np.zeros(h)
 
 ### intgerfaec interpolation
-
 # check initial two values
 # remind that (0,0) is the top left corner of an image
 Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 Intb[1] = pd.Series(imgBW[0,:]).idxmin()
 
-# search ranges 
-sr = 100 # search limit
-ub = 1100 # upper boundary
-lb = sr
-
-# use color depth
-# ldep = 100
-
-# Initial interpolation: interface positions
-for i in range(2, h):           
-    #######
-    # using depth works fine typically
-    # copy local BW depth (i.e. at i)
-    # initial check: color depth for interface
-    #######
-    
+### initial interpolation: interface positions
+### check a color depth: minimum for an interface
+for i in range(2, h):    
     Intb[i] = pd.Series(imgBW[i,int(lb):int(ub)]).idxmin() + int(lb)
     
     # differences
-    diffp = Intb[i-2] - Intb[i-1]
+    diffp = np.abs(Intb[i-2] - Intb[i-1])
     diffc = Intb[i-1] - Intb[i]
     
+    # refine searching limits
+    # lim1 is close to the dendrite tip
+    lim1 = Intb[i-1] - diffp - sr
+    # lim2 is close to the groove (far away from a tip)
+    lim2 = Intb[i-1] + diffp + sr
+    
+    '''
     if (diffp < 0) :
-        # lim1 is close to the dendrite tip
-        # lim2 is close to the groove (far away from a tip)
         lim1 = Intb[i-1] + diffp - sr
         lim2 = Intb[i-1] - diffp + sr
     else:
         lim1 = Intb[i-1] - diffp - sr
         lim2 = Intb[i-1] + diffp + sr
+    
+    '''
     
     # rearrange limits
     lim1 = lim1 if lim1 > sr else sr
@@ -122,7 +123,8 @@ for i in range(2, h):
     if ( lim2 == ub and diffc < 10 ):
         Intb[i] = ub
     elif (diffc > 200):
-        # if the variation is too large
+        # if the variation is too large (near the groove)
+        # we set it as ub
         Intb[i] = ub
     else:
         Intb[i] = \
