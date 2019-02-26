@@ -51,10 +51,6 @@ cv2.imwrite('Gray'+IFname, imgBW)
 
 ### (h, w): height and width of an image
 h, w = imgBW.shape 
-
-# set an array for a horizontal axis 
-X = np.arange(w)
-Y = np.arange(h)
 ############################################################
 
 ############################################################
@@ -67,20 +63,24 @@ spix = spix/1000.
 
 
 ############################################################
+### set an array for a horizontal axis 
+X = np.arange(w)
+Y = np.arange(h)
+
 # for new array: same data type as in the image
 Intf = np.zeros((h,w), dtype = imgBW.dtype )
 
-Int0 = np.zeros(h)
+### for interface locations in an image
 Intb = np.zeros(h)
 
-# for local depth 
+### for local depth 
 BWdepth = np.zeros(w)
 
-# check initial two values
-Int0[0] = pd.Series(imgBW[0,:]).idxmin()
-Intb[0] = pd.Series(imgBW[0,:]).idxmin()
+### intgerfaec interpolation
 
-Int0[1] = pd.Series(imgBW[0,:]).idxmin()
+# check initial two values
+# remind that (0,0) is the top left corner of an image
+Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 Intb[1] = pd.Series(imgBW[0,:]).idxmin()
 
 # search ranges 
@@ -92,10 +92,7 @@ lb = sr
 # ldep = 100
 
 # Initial interpolation: interface positions
-for i in range(2, h):
-    # raw interpolation
-    Int0[i] = pd.Series(imgBW[i,:]).idxmin()
-           
+for i in range(2, h):           
     #######
     # using depth works fine typically
     # copy local BW depth (i.e. at i)
@@ -399,7 +396,6 @@ for i in range(0, h):
 #plt.show()
 
 #plt.plot(Y[600:800],Intb[600:800], 'b')
-#plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
 
 plt.plot(Y,Intb, 'b')
 plt.plot(Tips[:,0], Tips[:,1], 'rx')
@@ -420,7 +416,6 @@ for idx in range (0, tn):
 
 #chkl = 450
 #chkr = 500
-#plt.plot(Y[chkl:chkr], Int0[chkl:chkr], 'k', Y[chkl:chkr],Intb[chkl:chkr], 'r.')
 #plt.plot(Y, Intb, 'b')
 plt.ylim(top = 500)
 plt.show()
