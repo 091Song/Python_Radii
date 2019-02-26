@@ -122,10 +122,14 @@ for i in range(2, h):
         pd.Series(imgBW[i,int(lim1):int(lim2)]).idxmin() + int(lim1)
         
 # so far the Intb array saves interface positions
+
+# Due to noise (black dots) of an image, 
+# interpreted locations do not match the real interface sometimes.
+# Need to refine the interface position (below)
     
-# Tune interface interpolation
+# Refine interface positions
 # manually set sr for interface reevaluation
-sr = 10
+sr = int(sr/10)
 for i in range(sr+1, h-sr-1):
     low = np.mean(Intb[ int(i-1-sr) : int(i-1)])
     high = np.mean(Intb[ int(i+1) : int(i+1+sr)])
