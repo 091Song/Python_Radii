@@ -206,14 +206,13 @@ for i in range(1,len(Lmin)-1):
     
     if ( Lmin[i,1] < Lmin[i-1,1] and Lmin[i,1] < Lmin[i+1,1] ):
         Tips = np.append(Tips, [ Lmin[i,:] ] , axis = 0 )
+
+# number of tips
+tn = len(Tips)
         
 # Lmin can be deleted by
 # del Lmin
 
-# number of tips
-tn = len(Tips)
-# index number of the most advanced tip
-idx_at = pd.Series(Tips[:,1]).idxmin()
 
 #####
 # from this point for interpolation
