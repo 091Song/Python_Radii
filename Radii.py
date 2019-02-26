@@ -99,23 +99,14 @@ for i in range(2, h):
     # differences
     diffp = np.abs(Intb[i-2] - Intb[i-1])
     diffc = Intb[i-1] - Intb[i]
+    # if using np.abs(diffc), it only catch one side of a tip parabola
     
     # refine searching limits
     # lim1 is close to the dendrite tip
     lim1 = Intb[i-1] - diffp - sr
     # lim2 is close to the groove (far away from a tip)
     lim2 = Intb[i-1] + diffp + sr
-    
-    '''
-    if (diffp < 0) :
-        lim1 = Intb[i-1] + diffp - sr
-        lim2 = Intb[i-1] - diffp + sr
-    else:
-        lim1 = Intb[i-1] - diffp - sr
-        lim2 = Intb[i-1] + diffp + sr
-    
-    '''
-    
+        
     # rearrange limits
     lim1 = lim1 if lim1 > sr else sr
     lim2 = lim2 if lim2 < ub else ub
