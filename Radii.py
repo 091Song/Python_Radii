@@ -5,6 +5,7 @@ Radius calculation using a sample image
          from the side of the sample
 
  - Input parameters: 
+     IFname: image file name
      spix: nm/pixel (written in an image)
 
  - Output: Gray image (converted from the original)
@@ -36,7 +37,7 @@ from scipy import optimize as sciopt
 IFname = 'SampleImage.jpg'
 
 # Read an image as gray color
-imgBW = cv2.imread('SampleImage.jpg', 0)
+imgBW = cv2.imread(IFname, 0)
 
 ### Show images
 # cv2.imshow('BlackWhite', imgBW)
@@ -45,7 +46,8 @@ imgBW = cv2.imread('SampleImage.jpg', 0)
 # cv2.destroyAllWindows()
 
 ### save the gray image
-cv2.imwrite('SampleGray.jpg', imgBW)
+#cv2.imwrite('SampleGray.jpg', imgBW)
+cv2.imwrite('Gray'+IFname, imgBW)
 
 ### (h, w): height and width of an image
 h, w = imgBW.shape 
