@@ -11,6 +11,7 @@ Radius calculation using a sample image
      ub: upper boundary
      msr: searching range for refining interface positions
      trange: searching range for cell tips
+     ld: diffusion length [microns/s]
 
  - Output: Gray image (converted from the original)
 
@@ -70,9 +71,63 @@ sr = 100 # search limit
 ub = 1100 # upper boundary
 lb = sr
 
+### diffusion length
+ld = 270./4.
+
 ############################################################
 
+############################################################
+### functions
+def LIMITS( ARR, tval, i0 = 0, steps = +1):
+    # this function will find an idex of one value in an array of ARR
+    # the value should be closest to the tval.
+    # the value shold also be equal to or lower than tval.
+    #
+    # output: min/max index of ARR[tval] <= tval
+    
+    # upper lim
+    larr = len(ARR)
+        
+    # target index
+    tidx = i0
+    
+    # first estimation: out of bounds
+    if (i0 < 0 or i0 > larr):
+        print("Please check a tip position.")
+        return 0
+    
+    # estimation
+    if (steps == 0):
+        print("a step value cannot be 0.")
+        return 0
+    elif (steps < 0) : 
+        
+        while (ARR[tidx] <= tval and tidx > 0 ) :
+            tidx += steps
+        
+        tidx = tidx - steps if tidx > 0 else 0
+        
+        return tidx
+    
+    elif (steps > 0) :
+        
+        while (ARR[tidx] <= tval and tidx < larr ) :
+            tidx += steps
+        
+        tidx = tidx - steps if tidx < larr else larr
+        
+        return tidx 
+        
+### quadratic eqution       
+def QuadEq(x, a1, a2, a3):
+    return a1 * (x**2) + a2 * x + a3
 
+### 4th eq.
+def EqOrder4(x, a1, a2, a3, a4, a5):
+    return a1*(x**4) + a2*(x**3) + a3*(x**2) + a4*x + a5
+
+############################################################
+    
 ############################################################
 ### set an array for a horizontal axis 
 X = np.arange(w)
@@ -154,7 +209,7 @@ for i in range(sr+1, h-sr-1):
 
 # Now, the Intb array has interface positions
 
-### find cell tips        
+### find cell tips
 
 # for most advanced tip
 tipa = Intb.min()
@@ -197,7 +252,7 @@ while (idx < h):
     
 # so far, Lmin has refined interface positions near tips
 
-### Save tip information
+# Save tip information
 # for tip positions
 Tips = np.zeros( (0,2) )
 
@@ -218,56 +273,10 @@ tn = len(Tips)
 # from this point for interpolation
 #####        
 
-def LIMITS( ARR, tval, i0 = 0, steps = +1):
-    # this function will find an idex of one value in ARR
-    # the value should be closest to the tval.
-    # the value shold also be equal to or lower than tval.
-    # output index
-    
-    # upper lim
-    larr = len(ARR)
-        
-    # target index
-    tidx = i0
-    
-    # first estimation
-    if (i0 < 0 or i0 > larr):
-        print("Please check a tip position.")
-        return 0
-    
-    # estimation
-    if (steps == 0):
-        print("a step value cannot be 0.")
-        return 0
-    elif (steps < 0) : 
-        
-        while (ARR[tidx] <= tval and tidx > 0 ) :
-            tidx += steps
-        
-        tidx = tidx - steps if tidx > 0 else 0
-        
-        return tidx
-    
-    elif (steps > 0) :
-        
-        while (ARR[tidx] <= tval and tidx < larr ) :
-            tidx += steps
-        
-        tidx = tidx - steps if tidx < larr else larr
-        
-        return tidx 
-        
-        
 
-# function def
-def QuadEq(x, a1, a2, a3):
-    return a1 * (x**2) + a2 * x + a3
-    
-def EqOrder4(x, a1, a2, a3, a4, a5):
-    return a1*(x**4) + a2*(x**3) + a3*(x**2) + a4*x + a5
 
-# diffusion length 
-ld = 270./4.
+
+
 
 # save fitting parameters and ranges of a tip
 Fparams = np.zeros( (tn,5) )
