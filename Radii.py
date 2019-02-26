@@ -70,7 +70,6 @@ Intf = np.zeros((h,w), dtype = imgBW.dtype )
 
 Int0 = np.zeros(h)
 Intb = np.zeros(h)
-Intbt = np.zeros(h) ## temporal - comparison
 
 # for local depth 
 BWdepth = np.zeros(w)
@@ -81,10 +80,6 @@ Intb[0] = pd.Series(imgBW[0,:]).idxmin()
 
 Int0[1] = pd.Series(imgBW[0,:]).idxmin()
 Intb[1] = pd.Series(imgBW[0,:]).idxmin()
-
-# temporal
-Intbt[0] = Intb[0] 
-Intbt[1] = Intb[1] 
 
 # search ranges 
 sr = 100 # search limit
@@ -124,9 +119,7 @@ for i in range(2, h):
     # rearrange limits
     lim1 = lim1 if lim1 > sr else sr
     lim2 = lim2 if lim2 < ub else ub
-    
-    #if (Intbt[i-1] < )
-    
+        
     if ( lim2 == ub and diffc < 10 ):
         Intb[i] = ub
     elif (diffc > 200):
@@ -402,7 +395,6 @@ for i in range(0, h):
 #plt.subplot(2,2,4); plt.plot(Y,Intb)
 
 #plt.show()
-#plt.plot(Y, Int0, 'k', Y,Intb, 'b', Y,Intbt, 'r')
 
 #plt.plot(Y[600:800],Intb[600:800], 'b')
 #plt.plot(Y, Int0, 'k', Y,Intb, 'b--')
