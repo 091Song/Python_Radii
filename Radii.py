@@ -11,7 +11,7 @@ Radius calculation using a sample image
      ub: upper boundary
      msr: searching range for refining interface positions
      trange: searching range for cell tips
-     ld: diffusion length [microns/s]
+     ld: diffusion length [microns]
 
  - Output: Gray image (converted from the original)
 
@@ -269,50 +269,39 @@ tn = len(Tips)
 # del Lmin
 
 
-#####
-# from this point for interpolation
-#####        
-
-
-
-
-
+##### Interpolation of a tip radius
 
 # save fitting parameters and ranges of a tip
 Fparams = np.zeros( (tn,5) )
 # searching range
 SearchR = np.zeros(tn)
 
+# (1) use a parabola shape
 for i in range(0, tn):
     
-    # find lower/upper limits for an interpolation
-    
-    # tips
+    # pre-determined tip positions
     xtip = Tips[i,0]
     ytip = Tips[i,1]
     
-    # searching distance
-    # initially use a small range
-    # use a unit: pixel
+    # use a unit: pixel    
+    # initially use a small range to calculation a tip radius
     sdist = 0.1 * ld/spix
     
     # an index for a lower limit
     idxl = LIMITS( Intb, (ytip+sdist), int(xtip), -1) 
-    # an index for a higher upper limit
+    # an index for a upper limit
     idxh = LIMITS( Intb, (ytip+sdist), int(xtip) )
-        
-    # need to printout these values
-    # print(i, idxl, Intb[idxl], idxu, Intb[idxu], ytip+ld)
-    # popt, pcov = curve_fit(QuadEq, Y[idxl:idxu], Intb[idxl:idxu] )
     
+    # fitting a parabola curve
     popt, pcov = sciopt.curve_fit(QuadEq, Y[idxl:idxh+1], Intb[idxl:idxh+1] )
-    
+    # interpolation of a radius [pixel]
     rlocal = 1./(2. * popt[0] )
     
-    # further estimation of a radius
+    # calculate a radius in different range
+    # upto r ~ fitting distance from the tip
+    
     # checking number
     ncheck = 0
-    
 
     while ( sdist + 1. < rlocal and ncheck < 1000 ):
         # searching range
@@ -342,7 +331,10 @@ for i in range(0, tn):
     # third parameter a3
     Fparams[i,4] = popt[2]
 
-# fit small range 
+
+# (2) use a tip radius (4th order equation)
+
+# to save a tip radius
 Rtips = np.zeros(tn)
 
 for i in range(0, tn):
@@ -355,16 +347,19 @@ for i in range(0, tn):
     idxl = LIMITS( Intb, (ytip+10), int(xtip), -1) 
     # an index for a higher upper limit
     idxh = LIMITS( Intb, (ytip+10), int(xtip) )
-    #QuadEq EqOrder4
-    ## use 4th order for a curve fitting
+    
+    # use 4th order for a curve fitting
     popt, pcov = sciopt.curve_fit(EqOrder4, Y[idxl:idxh+1], Intb[idxl:idxh+1])
     
+    # derivatives
     dydx = 4.*popt[0]*pow(xtip,3) + 3.*popt[1]*pow(xtip,2) \
             + 2.*popt[2]*xtip + popt[3]        
     d2ydx2 = 12.*popt[0]*pow(xtip,2) + 6.*popt[1]*xtip + 2.*popt[2]
     
+    # curvature
     curvk = d2ydx2 / pow( (1 + dydx*dydx),3./2. )
     
+    # tip radius
     Rtips[i] = 1/curvk
 
 
