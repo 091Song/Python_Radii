@@ -196,18 +196,19 @@ while (idx < h):
     steps = 1
     
 # so far, Lmin has refined interface positions near tips
-# to save tip information
+
+### Save tip information
+# for tip positions
 Tips = np.zeros( (0,2) )
 
+# find and save tips
 for i in range(1,len(Lmin)-1):
     
     if ( Lmin[i,1] < Lmin[i-1,1] and Lmin[i,1] < Lmin[i+1,1] ):
         Tips = np.append(Tips, [ Lmin[i,:] ] , axis = 0 )
         
-
-# behind this point Lmin array is not necessary
+# Lmin can be deleted by
 # del Lmin
-### del(Lmin) --> use for radius evalution
 
 # number of tips
 tn = len(Tips)
