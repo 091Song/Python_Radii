@@ -74,10 +74,6 @@ plt.plot(X,imgBW[int(h/2),:])
 plt.show()
 ###
 
-
-# for new array: same data type as in the image
-Intf = np.zeros((h,w), dtype = imgBW.dtype )
-
 ### for interface locations in an image
 Intb = np.zeros(h)
 
@@ -367,9 +363,7 @@ for i in range(0, tn):
 
 
 # rearrange interface positions
-for i in range(0, h):
-    # set white for a boundary 
-    Intf[i,int(Intb[i])] = 255
+#for i in range(0, h):
     # interface : temporal 
     # Intb[i] = w - Intb[i]
 
@@ -393,7 +387,6 @@ for i in range(0, h):
 
 #plt.figure()
 #plt.subplot(2,2,1); plt.imshow(imgProc, cmap='gray')
-#plt.subplot(2,2,2); plt.imshow(Intf, cmap='gray')
 #plt.subplot(2,2,3); plt.plot(X,imgBW[int(h/2),:])
 #plt.subplot(2,2,4); plt.plot(Y,Intb)
 
