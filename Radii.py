@@ -134,9 +134,10 @@ X = np.arange(w)
 Y = np.arange(h)
 
 ### (sample) depth map at the center of an image
-plt.figure()
+fig1 = plt.figure()
 plt.plot(X,imgBW[int(h/2),:])
 plt.show()
+fig1.savefig("Fig1.pdf")
 ###
 
 ### for interface locations in an image
@@ -363,88 +364,72 @@ for i in range(0, tn):
     Rtips[i] = 1/curvk
 
 
-
+############################################################
+### Image outputs
+    
 # rearrange interface positions
 #for i in range(0, h):
     # interface : temporal 
     # Intb[i] = w - Intb[i]
 
-        
+fig2 = plt.figure()
+
+# interface
+plt.plot(Y,Intb, 'k', linewidth = 1.5, label = 'Interface')
+
+# tip positions
+plt.plot(Tips[:,0], Tips[:,1], 'rx', linewidth = 1.5, markersize = 8,\
+         label = 'Tips')
+
+# parabola fit
+for idx in range (0, tn):
     
-### This is for check image 
-# to save the original image, copy it
-# imgProc = np.array(imgBW)
-# imgProc[h/2-10:h/2+10, :] = np.uint8(255)
+    radd = 100
+    idxl = int(Fparams[idx,0]) - radd
+    idxr = int(Fparams[idx,1]+1) + radd
+    
+    plt.plot( Y[idxl:idxr], QuadEq(Y[idxl:idxr], \
+             Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
+            'r--', linewidth = 1.5)
+    
 
-### sort
-#imgBW2 = (imgBW < 120 )
+plt.legend()
 
-#matrix = cv2.getRotationMatrix2D((height/2,width/2),-90,1)
-#imgRot = cv2.warpAffine(imgBW, matrix, (height, width))
-
-### using Matplotlib
-#plt.imshow(imgProc, cmap='gray')
-#plt.xticks([])
-#plt.yticks([])
-
-#plt.figure()
-#plt.subplot(2,2,1); plt.imshow(imgProc, cmap='gray')
-#plt.subplot(2,2,3); plt.plot(X,imgBW[int(h/2),:])
-#plt.subplot(2,2,4); plt.plot(Y,Intb)
-
-#plt.show()
-
-#plt.plot(Y[600:800],Intb[600:800], 'b')
-
-plt.plot(Y,Intb, 'b')
-plt.plot(Tips[:,0], Tips[:,1], 'rx')
-
-idxl = int(Fparams[0,0])
-idxh = int(Fparams[0,1])
-
-# idx=0
-for idx in range (0, tn):
-    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
-                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
-                         Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
-                         'r--')
-                
-#plt.plot( Lmin[idxl:idxh,0], QuadEq(Lmin[idxl:idxh,0], *popt), 'g-')
-#plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
-#plt.ylim(290,350)
-
-#chkl = 450
-#chkr = 500
-#plt.plot(Y, Intb, 'b')
-plt.ylim(top = 500)
+plt.ylim(top = 800)
 plt.show()
 
-#plt.plot( Y[idxl:idxu], QuadEq( Y[idxl:idxu], *popt), 'g--')
-#plt.ylim(-250,250) #https://plot.ly/matplotlib/axes/
-#plt.plot(Y[1:len(Y)]-0.5, (Intb[1:len(Intb)] - Intb[0:len(Intb)-1]))
-#plt.plot(Y[1:chkr+1], (Intb[2:chkr+2] - Intb[0:chkr]))
-#plt.show()
+fig2.savefig("Fig2.pdf")
 
-plt.plot( Lmin[:,0], Lmin[:,1], 'g-')
+### like the figure
+fig3 = plt.figure()
+# interface
+plt.plot(Intb[:], h - Y[:], 'k', linewidth = 1.5, label = 'Interface')
+# tip positinos
+plt.plot(Tips[:,1], h-Tips[:,0], 'rx', linewidth = 1.5, markersize = 8,\
+         label = 'Tips')
 
+# parabola fit
 for idx in range (0, tn):
-    plt.plot( Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
-                QuadEq(Y[int(Fparams[idx,0]):int(Fparams[idx,1]+1)], \
-                         Fparams[idx,2], Fparams[idx,3], Fparams[idx,4]), \
-                         'r--')
+    
+    radd = 100
+    idxl = int(Fparams[idx,0]) - radd
+    idxr = int(Fparams[idx,1]+1) + radd
+    
+    plt.plot( QuadEq(Y[idxl:idxr], Fparams[idx,2], Fparams[idx,3], \
+                     Fparams[idx,4]), \
+            h - Y[idxl:idxr], 'r--', linewidth = 1.5)
 
-#plt.ylim(top = 320)
+plt.legend()
 plt.show()
 
-'''
-for idx in range(0, tn):
-    rad = 1./(2. * Fparams[idx,2])
-    # previously calculated in unit of [pixel] 
-    print("radius of tip {:d} = {:.3f} microns \
-          (at the tip: {:.3f} microns)".format(idx, rad * spix, spix*Rtips[idx]) )
-'''
 
-## save data
+fig3.savefig("Fig3.pdf")
+
+############################################################
+
+
+############################################################
+### save radius data
 Fout = open('radii.dat', 'w')
 # First line: total number of cells
 Fout.write("#total number of cells: {:d}\n".format(tn))
@@ -474,11 +459,10 @@ for idx in range(0, tn):
 Fout.write("\n")
 
 Fout.close()
+############################################################
     
     
-    
-    
-    
+
     
     
     
